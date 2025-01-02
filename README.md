@@ -69,6 +69,15 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <ul>
+        <li><a href="#workflow">Workflow</a></li>
+        <li><a href="#terraform">Terraform</a></li>
+        <li><a href="#iam">IAM</a></li>
+        <li><a href="#lambda">Lambda</a></li>
+        <li><a href="#s3">S3</a></li>
+        <li><a href="#ses">SES</a></li>
+    </ul>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -161,7 +170,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Terraform Flow
+### Terraform
 
 <br />
 <div align="center">
