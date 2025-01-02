@@ -86,6 +86,6 @@ resource "aws_ses_receipt_rule" "discord-email-webhook" {
   recipients    = [var.recipient]
   s3_action {
     bucket_name = aws_s3_bucket.discord-email-webhook.bucket
-    position    = 0
+    position    = 1
   }
 }

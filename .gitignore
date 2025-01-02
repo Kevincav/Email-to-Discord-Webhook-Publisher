@@ -69,11 +69,8 @@ project/**/metals.sbt
 .bsp
 .history
 
-# Ignore Terraform state file
+# Terraform
 *.tfstate
-
-# Ignore Terrform lock files
 *.hcl
-
-# Ignore the .terraform directory
 .terraform/
+*.out

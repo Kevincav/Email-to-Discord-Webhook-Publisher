@@ -90,8 +90,8 @@ jobs:
         TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
         TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
         TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
-        TF_VAR_access_key: ${{ secrets.TF_VAR_ACCESS_KEY }}
-        TF_VAR_secret_key: ${{ secrets.TF_VAR_SECRETS_KEY }}
+        TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+        TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
       run: terraform plan -out=plan
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
