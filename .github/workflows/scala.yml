@@ -1,11 +1,4 @@
-# This workflow installs the latest version of Terraform CLI and configures the Terraform CLI configuration file
-# with an API token for Terraform Cloud (app.terraform.io). On pull request events, this workflow will run
-# `terraform init`, `terraform fmt`, and `terraform plan` (speculative plan via Terraform Cloud). On push events
-# to the "main" branch, `terraform apply` will be executed.
-#
-# Documentation for `hashicorp/setup-terraform` is located here: https://github.com/hashicorp/setup-terraform
-
-name: 'Terraform'
+name: 'Publish Lambda and Deploy Services with Terraform'
 
 on:
   # push:
@@ -109,25 +102,20 @@ jobs:
     environment: development
     needs: publish-lambda
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
 
     steps:
-      # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         run: terraform init
 
-      # Checks that all Terraform configuration files adhere to a canonical format
       - name: Terraform Format
         run: terraform fmt -check
 
@@ -138,32 +126,26 @@ jobs:
     environment: development
     needs: check-terraform
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v4
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       run: terraform init
 
-    # Download previously built lambda function
     - name: Download Lambda as Artifact
       uses: actions/download-artifact@v4
       with:
         name: EmailWebhookHandlerLambda
         path: ${{ env.TF_VAR_LAMBDA_PATH }}
 
-    # Generates an execution plan for Terraform
     - name: Terraform Plan
       env:
         TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
@@ -175,7 +157,6 @@ jobs:
         TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
       run: terraform plan -out=${{ env.TF_VAR_TERRAFORM_PATH }}
 
-    # Push Plan as Artifact
     - name: Upload Terraform Plan as Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -189,29 +170,23 @@ jobs:
     environment: development
     needs: plan-terraform-development
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
 
     steps:
-      # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      # Download previously built terraform plan
       - name: Download Terraform Plan as Artifact
         uses: actions/download-artifact@v4
         with:
           name: EmailWebhookHandlerPlan
           path: ${{ env.TF_VAR_TERRAFORM_PATH }}
 
-        # On push to "main", build or change infrastructure according to Terraform configuration files
-        # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
       - name: Terraform Apply
         if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
