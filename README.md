@@ -166,13 +166,14 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 ### Workflow
 
-
+<div align="center">
+<img src="images/workflow.png" alt="Logo">
+</div>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Terraform
 
-<br />
 <div align="center">
 <img src="images/architecture.png" alt="Logo">
 </div> 
@@ -245,7 +246,7 @@ Don't forget to give the project a star! Thanks again!
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT. See `LICENSE.txt` for more information.
+Distributed under the MIT license. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
