@@ -33,10 +33,10 @@
     <img src="images/logo.png" alt="Logo" width="240" height="240">
   </a>
 
-<h3 align="center">project_title</h3>
+<h3 align="center">Email to Discord Publisher</h3>
 
   <p align="center">
-    project_description
+    This project publishes a message to a discord webhook upon receiving an email. It uses AWS services to automate the process.
     <br />
     <a href="https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher"><strong>Explore the docs »</strong></a>
     <br />
@@ -82,9 +82,12 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
-
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `Kevincav`, `Email-to-Discord-Webhook-Publisher`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `MIT`
+Several years ago, a user named Jonas on [Medium](https://medium.com/@_jonas/email-to-discord-webhook-with-amazon-ses-and-aws-lambda-38154e2c1e49)
+wrote a wonderful article on how to utilize AWS services to automate the process to forward an email to a discord server upon receipt.
+Most of the work is done with manual creations and permissions, the goal of this project is to streamline the process by automating
+everything through terraform. As well as create a Scala version of the script instead of Python (personal challenge) like the original source.
+This project will automate the process of creating an IAM role, its policies, the Lambda function, S3 bucket and SES through terraform scripts. Then deploy
+with github actions.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -199,8 +202,6 @@ Distributed under the MIT. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
-
 Project Link: [https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher](https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -210,9 +211,7 @@ Project Link: [https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher](h
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
-* []()
-* []()
+* Thanks for all the hard work done by Jonas on medium to create the groundwork needed to scale to full automation. [Medium Article](https://medium.com/@_jonas/email-to-discord-webhook-with-amazon-ses-and-aws-lambda-38154e2c1e49)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
