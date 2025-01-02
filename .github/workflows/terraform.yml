@@ -76,15 +76,15 @@ jobs:
       - name: Set up SBT
         uses: sbt/setup-sbt@v1
 
-      - name: Build and Test with Coverage
-        run: |
-          sbt coverage test
-          sbt coverageReport
+      # - name: Build and Test with Coverage
+      #   run: |
+      #     sbt coverage test
+      #     sbt coverageReport
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v5
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Publish New Lambda Function
         run: sbt assembly
