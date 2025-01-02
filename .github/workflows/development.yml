@@ -10,8 +10,8 @@ name: 'Terraform'
 on:
   # push:
   #   branches: [ "main" ]
-  # pull_request:
-  #   branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
   workflow_dispatch:
 
 permissions:
@@ -21,7 +21,7 @@ env:
   TF_VAR_LAMBDA_PATH: "./target/scala-2.13/DiscordEmailWebhook-assembly-v1.0.0.jar"
 
 jobs:
-  scala:
+  lambda-build:
     name: 'Scala'
     runs-on: ubuntu-latest
     environment: development
@@ -38,16 +38,34 @@ jobs:
       - name: Set up SBT
         uses: sbt/setup-sbt@v1
 
-      # - name: Build and Test with Coverage
+      - name: Build Lambda Function
+        run: sbt compile
+
+
+  lambda-test:
+    name: 'Scala'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: lambda-build
+    steps:
+      - name: Build and Test with Coverage
+        run: |
       #   run: |
       #     sbt coverage test
       #     sbt coverageReport
 
-      # - name: Upload coverage to Codecov
+      - name: Upload coverage to Codecov
+        run: |
       #   uses: codecov/codecov-action@v5
       #   env:
       #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  lambda-publish:
+    name: 'Scala'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: lambda-test
+    steps:
       - name: Publish New Lambda Function
         run: sbt assembly
 
@@ -57,7 +75,7 @@ jobs:
 
   terraform:
     name: 'Terraform'
-    needs: scala
+    needs: lambda-publish
     runs-on: ubuntu-latest
     environment: development
 
