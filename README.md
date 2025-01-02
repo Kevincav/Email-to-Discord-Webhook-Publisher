@@ -300,7 +300,7 @@ Don't forget to give the project a star! Thanks again!
   <img src="https://contrib.rocks/image?repo=Kevincav/Email-to-Discord-Webhook-Publisher" alt="contrib.rocks image" />
 </a>
 
-
+---
 
 <!-- LICENSE -->
 ## License
