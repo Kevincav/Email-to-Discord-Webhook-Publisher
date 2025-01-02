@@ -136,7 +136,7 @@ jobs:
     name: 'Plan Terraform'
     runs-on: ubuntu-latest
     environment: development
-    needs: check-lambda
+    needs: check-terraform
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
