@@ -1,0 +1,302 @@
+# This workflow installs the latest version of Terraform CLI and configures the Terraform CLI configuration file
+# with an API token for Terraform Cloud (app.terraform.io). On pull request events, this workflow will run
+# `terraform init`, `terraform fmt`, and `terraform plan` (speculative plan via Terraform Cloud). On push events
+# to the "main" branch, `terraform apply` will be executed.
+#
+# Documentation for `hashicorp/setup-terraform` is located here: https://github.com/hashicorp/setup-terraform
+
+name: 'Terraform'
+
+on:
+  # push:
+  #   branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  TF_VAR_LAMBDA_PATH: "target/scala-2.13/DiscordEmailWebhook-assembly-v1.0.0.jar"
+  TF_VAR_TERRAFORM_PATH: "webhookPublisher.tfplan"
+
+jobs:
+  build-lambda:
+    name: 'Build Lambda'
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: corretto
+          cache: 'sbt'
+
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
+
+      - name: Build SBT
+        uses: sbt compile
+
+
+  test-lambda:
+    name: 'Test Lambda'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: build-lambda
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: corretto
+          cache: 'sbt'
+
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
+
+      - name: Build and Test with Coverage
+        run: |
+      #     sbt coverage test
+      #     sbt coverageReport
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+
+  publish-lambda:
+    name: 'Publish Lambda'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: test-lambda
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: corretto
+          cache: 'sbt'
+
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
+
+      - name: Publish New Lambda Function
+        run: sbt assembly
+
+      - name: Upload Lambda as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EmailWebhookHandlerLambda
+          path: ${{ env.TF_VAR_LAMBDA_PATH }}
+
+      - name: Upload dependency graph
+        uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
+
+
+  check-terraform:
+    name: 'Check Terraform'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: publish-lambda
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
+
+      # Checks that all Terraform configuration files adhere to a canonical format
+      - name: Terraform Format
+        run: terraform fmt -check
+
+
+  plan-terraform-development:
+    name: 'Plan Terraform'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: check-lambda
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+    - name: Terraform Init
+      run: terraform init
+
+    # Download previously built lambda function
+    - name: Download Lambda as Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: EmailWebhookHandlerLambda
+        path: ${{ env.TF_VAR_LAMBDA_PATH }}
+
+    # Generates an execution plan for Terraform
+    - name: Terraform Plan
+      env:
+        TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
+        TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
+        TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
+        TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
+        TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
+        TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+        TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
+      run: terraform plan -out=${{ env.TF_VAR_TERRAFORM_PATH }}
+
+    # Push Plan as Artifact
+    - name: Upload Terraform Plan as Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: EmailWebhookHandlerPlan
+        path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+
+
+  plan-terraform-production:
+    name: 'Plan Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: check-lambda
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        run: terraform init
+
+      # Download previously built lambda function
+      - name: Download Lambda as Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: EmailWebhookHandlerLambda
+          path: ${{ env.TF_VAR_LAMBDA_PATH }}
+
+      # Generates an execution plan for Terraform
+      - name: Terraform Plan
+        env:
+          TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
+          TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
+          TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
+          TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
+          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
+          TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+          TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
+        run: terraform plan -out=${{ env.TF_VAR_TERRAFORM_PATH }}
+
+      # Push Plan as Artifact
+      - name: Upload Terraform Plan as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EmailWebhookHandlerPlan
+          path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+
+
+  publish-terraform-development:
+    name: 'Publish Terraform'
+    runs-on: ubuntu-latest
+    environment: development
+    needs: plan-terraform-development
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # Download previously built terraform plan
+      - name: Download Terraform Plan as Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: EmailWebhookHandlerPlan
+          path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+
+        # On push to "main", build or change infrastructure according to Terraform configuration files
+        # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+
+
+  publish-terraform-production:
+    name: 'Publish Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: plan-terraform-production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      # Download previously built terraform plan
+      - name: Download Terraform Plan as Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: EmailWebhookHandlerPlan
+          path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+
+        # On push to "main", build or change infrastructure according to Terraform configuration files
+        # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
