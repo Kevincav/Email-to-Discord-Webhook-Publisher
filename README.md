@@ -50,44 +50,6 @@
 </div>
 
 
-
-<!-- TABLE OF CONTENTS -->
-<details>
-  <summary>Table of Contents</summary>
-  <ol>
-    <li>
-      <a href="#about-the-project">About The Project</a>
-      <ul>
-        <li><a href="#built-with">Built With</a></li>
-      </ul>
-    </li>
-    <li>
-      <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
-    </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#architecture">Architecture</a></li>
-    <ul>
-        <li><a href="#workflow">Workflow</a></li>
-        <li><a href="#terraform">Terraform</a></li>
-        <li><a href="#iam">IAM</a></li>
-        <li><a href="#lambda">Lambda</a></li>
-        <li><a href="#s3">S3</a></li>
-        <li><a href="#ses">SES</a></li>
-    </ul>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
-  </ol>
-</details>
-
-
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
@@ -100,7 +62,7 @@ with github actions.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
+---
 
 ### Built With
 
@@ -109,7 +71,7 @@ with github actions.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
+---
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -148,8 +110,6 @@ This is an example of how to list things you need to use the software and how to
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
-
 <!-- USAGE EXAMPLES -->
 ## Usage
 
@@ -159,10 +119,12 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
+---
 
 <!-- ARCHITECTURE -->
-## Architecture
+## AWS Architecture Overview
+
+This document provides an architectural overview of the system designed to process incoming emails and send them to a Discord webhook using AWS services. The system utilizes IAM, Lambda, S3, and SES in the following manner.
 
 ### Workflow
 
@@ -180,29 +142,123 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### IAM
 
+### 1. IAM (Identity and Access Management)
 
+#### Resources Involved:
+- `aws_iam_role` (Role for Lambda)
+- `aws_iam_role_policy` (Role policies)
+- `aws_s3_bucket_policy` (S3 bucket policy)
+
+#### Architectural Overview:
+- **IAM Role for Lambda:**  
+  The role `discord-email-webhook` is assigned to the Lambda function to grant it the necessary permissions to interact with other AWS resources like S3 and CloudWatch Logs. It assumes the `sts:AssumeRole` permission, allowing AWS Lambda to execute under this role.
+
+- **Role Policies:**  
+  Two policies are attached to the IAM role:
+    1. **S3 Access Policy (`s3-get-object-policy`)**: Grants the Lambda function permission to `GetObject` from the S3 bucket (`discord-email-webhook`).
+    2. **CloudWatch Logs Policy (`cloud_log_group`)**: Grants Lambda permission to create log groups, log streams, and log events, enabling logging of Lambda invocations.
+
+- **S3 Bucket Policy:**  
+  The `s3_bucket_policy` allows Lambda (`AllowLambdaGets`) and SES (`AllowSESPuts`) to interact with the S3 bucket:
+    1. **Lambda:** Can retrieve objects from the S3 bucket.
+    2. **SES:** Can put objects (e.g., email data) into the S3 bucket.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Lambda
+### 2. Lambda Function
 
+#### Resources Involved:
+- `aws_lambda_function` (Lambda function)
 
+#### Architectural Overview:
+- **Lambda Function:**  
+  The `discord-email-webhook` Lambda function is set up to process events triggered by S3 bucket uploads. It uses the `java21` runtime and a specific function handler (`EmailWebhookHandler::handleEvent`), indicating that the Lambda is written in Java.
+    - **Environment Variables:** The Lambda is configured with environment variables, such as the Discord webhook URL (`WEBHOOK_ADDRESS`) and a flag to disable Java deprecation warnings.
+    - **Trigger:** The Lambda function will be triggered when new objects are added to the S3 bucket (`discord-email-webhook`) based on the S3 notification configuration.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### 3. S3 Buckets
+
+#### Resources Involved:
+- `aws_s3_bucket` (S3 bucket)
+- `aws_s3_bucket_lifecycle_configuration` (S3 object lifecycle policy)
+- `aws_s3_bucket_notification` (S3 event notification)
+
+#### Architectural Overview:
+- **S3 Bucket (`discord-email-webhook`):**  
+  This bucket is used to store email data processed by SES before being passed to the Lambda function. The bucket is named with a dynamic pattern based on the program name.
+
+- **Lifecycle Configuration:**  
+  The S3 bucket has a lifecycle policy (`ExpireObjects`) to automatically expire objects (email data) 7 days after they are created, ensuring data is not stored indefinitely.
+
+- **Bucket Notifications:**  
+  The bucket is configured to trigger the Lambda function when objects are created. The events that trigger the Lambda function are `s3:ObjectCreated:Put` and `s3:ObjectCreated:Post`. This ensures the Lambda function is invoked whenever a new email or object is uploaded to the bucket by SES.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### S3
+### 4. SES (Simple Email Service)
 
+#### Resources Involved:
+- `aws_ses_domain_identity` (Domain verification)
+- `aws_ses_receipt_rule_set` (Rule set)
+- `aws_ses_receipt_rule` (Receipt rule)
 
+#### Architectural Overview:
+- **SES Domain Identity:**  
+  SES is configured to verify a domain (`discord-email-webhook`), which ensures that emails sent to the domain are processed securely.
+
+- **Receipt Rule Set:**  
+  A receipt rule set is defined to manage how incoming emails are processed. This set is identified with the name `${local.program_name}-rule-set`, linking it to the specific program.
+
+- **Receipt Rule:**  
+  The receipt rule processes incoming emails that match the specified recipient (`var.recipient`). After receiving the email, SES triggers an action to store the email object in the S3 bucket (`discord-email-webhook`), using the `S3` action within the rule. This action stores the email in the bucket before further processing by the Lambda function.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### SES
+### Key Flow Overview
 
+1. **Email Sent to SES:**
+    - An email is sent to a recipient (e.g., `var.recipient`). SES receives the email and checks if the domain is verified and the recipient matches the rule.
 
+2. **SES Stores Email in S3:**
+    - SES stores the email data in the configured S3 bucket (`discord-email-webhook`) using the receipt rule and its associated `S3` action.
+
+3. **S3 Notification Triggers Lambda:**
+    - The creation of an object in the S3 bucket (email data) triggers the S3 bucket notification, invoking the Lambda function (`discord-email-webhook`).
+
+4. **Lambda Processes Email:**
+    - The Lambda function processes the email data (perhaps formatting it or extracting relevant information) and sends it to a Discord webhook (`WEBHOOK_ADDRESS`) for further action, like notification or logging.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Variables Overview
+
+#### Input Variables:
+- `aws_access_key_id`, `aws_secret_access_key`: AWS credentials (should be securely managed).
+- `discord_name`, `domain_name`, `recipient`, `webhook_address`: User-specific configuration (Discord name, SES domain, webhook URL, etc.).
+- `lambda_path`: Path to the Lambda function code.
+- `architecture`, `runtime`, `region`: AWS runtime and region configurations.
+
+#### Local Variables:
+- `account_id`, `program_name`, `recipient`: Dynamically generated based on the input variables, ensuring consistent naming and configurations throughout the Terraform resources.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Architectural Summary
+
+This setup leverages multiple AWS services to create an automated pipeline that:
+
+1. Receives emails via SES.
+2. Stores the email data in an S3 bucket.
+3. Triggers a Lambda function to process the email and send it to a Discord webhook.
+
+The architecture is focused on automating email-to-Discord notifications using a combination of IAM roles/policies, Lambda, SES, and S3. Each service is tightly integrated with others to ensure smooth operation, security (via IAM), and scalability (via Lambda and S3). The lifecycle policies on S3 ensure that email data is not stored indefinitely, helping with cost management.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+---
 
 
 <!-- ROADMAP -->
@@ -217,6 +273,7 @@ See the [open issues](https://github.com/Kevincav/Email-to-Discord-Webhook-Publi
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+---
 
 
 <!-- CONTRIBUTING -->
@@ -235,6 +292,8 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+---
+
 ### Top contributors:
 
 <a href="https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher/graphs/contributors">
@@ -250,7 +309,7 @@ Distributed under the MIT license. See `LICENSE.txt` for more information.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
+---
 
 <!-- CONTACT -->
 ## Contact
@@ -259,7 +318,7 @@ Project Link: [https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher](h
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-
+---
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
