@@ -190,3 +190,75 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
+
+
+  plan-terraform-production:
+    name: 'Plan Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: publish-terraform-development
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Download Lambda as Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: EmailWebhookHandlerLambda
+          path: ${{ env.TF_VAR_LAMBDA_PATH }}
+
+      - name: Terraform Plan
+        env:
+          TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
+          TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
+          TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
+          TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
+          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
+          TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+          TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
+        run: terraform plan -out=${{ env.TF_VAR_TERRAFORM_PATH }}
+
+      - name: Upload Terraform Plan as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: EmailWebhookHandlerPlan
+          path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+
+
+  publish-terraform-production:
+    name: 'Publish Terraform'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: plan-terraform-production
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Download Terraform Plan as Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: EmailWebhookHandlerPlan
+          path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
