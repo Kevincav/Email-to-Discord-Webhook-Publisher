@@ -33,7 +33,7 @@ jobs:
         uses: sbt/setup-sbt@v1
 
       - name: Build SBT
-        uses: sbt compile
+        run: sbt compile
 
 
   test-lambda:
@@ -60,7 +60,7 @@ jobs:
       #     sbt coverageReport
 
       # - name: Upload coverage to Codecov
-      #  uses: codecov/codecov-action@v5
+      #   uses: codecov/codecov-action@v5
       #   env:
       #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
