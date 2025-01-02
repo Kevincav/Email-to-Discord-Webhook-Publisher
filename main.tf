@@ -11,7 +11,7 @@ resource "aws_lambda_function" "discord-email-webhook" {
   runtime       = var.runtime
   role          = aws_iam_role.discord-email-webhook.arn
   handler       = "EmailWebhookHandler::handleEvent"
-  function_name = "Discord-Email-Webhook"
+  function_name = "${local.program_name}-Discord-Email-Webhook"
   architectures = [var.architecture]
   filename      = var.lambda_path
   environment {
@@ -76,12 +76,12 @@ resource "aws_ses_domain_identity" "discord-email-webhook" {
 }
 
 resource "aws_ses_receipt_rule_set" "discord-email-webhook" {
-  rule_set_name = "${local.program_name}-update"
+  rule_set_name = "${local.program_name}-rule-set"
 }
 
 resource "aws_ses_receipt_rule" "discord-email-webhook" {
   rule_set_name = aws_ses_receipt_rule_set.discord-email-webhook.rule_set_name
-  name          = aws_ses_receipt_rule_set.discord-email-webhook.rule_set_name
+  name          = "${local.program_name}-rule"
   after         = "S3"
   recipients    = [var.recipient]
   s3_action {
