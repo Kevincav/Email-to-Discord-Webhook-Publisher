@@ -33,11 +33,9 @@
     <img src="images/logo.png" alt="Logo" width="240" height="240">
   </a>
 
-<h3 align="center">Email to Discord Publisher</h3>
+  <h3 align="center">Email to Discord Webhook Publisher</h3>
 
   <p align="center">
-    This project publishes a message to a discord webhook upon receiving an email. It uses AWS services to automate the process.
-    <br />
     <a href="https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher"><strong>Explore the docs »</strong></a>
     <br />
     <br />
@@ -51,14 +49,39 @@
 
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+## Project Description
 
-Several years ago, a user named Jonas on [Medium](https://medium.com/@_jonas/email-to-discord-webhook-with-amazon-ses-and-aws-lambda-38154e2c1e49)
-wrote a wonderful article on how to utilize AWS services to automate the process to forward an email to a discord server upon receipt.
-Most of the work is done with manual creations and permissions, the goal of this project is to streamline the process by automating
-everything through terraform. As well as create a Scala version of the script instead of Python (personal challenge) like the original source.
-This project will automate the process of creating an IAM role, its policies, the Lambda function, S3 bucket and SES through terraform scripts. Then deploy
-with github actions.
+### **Email to Discord Webhook Publisher**
+
+This project is designed to automate the process of forwarding emails to a Discord channel via a webhook. Using AWS services such as **Lambda**, **SES (Simple Email Service)**, and **S3**, this solution enables seamless email-to-webhook integration. The primary use case is for users who want to receive email alerts, notifications, or any other form of email communication directly in a Discord channel.
+
+The idea for this project was inspired by the article ["Email to Discord Webhook with Amazon SES and AWS Lambda"](https://medium.com/@_jonas/email-to-discord-webhook-with-amazon-ses-and-aws-lambda-38154e2c1e49) by Jonas, which explains how to set up a simple email-to-Discord system using AWS SES and Lambda. The article provided a great starting point for this idea, but the goal here is to **fully automate the deployment and management** of the entire system using **Terraform** and **GitHub Actions**.
+
+By leveraging infrastructure as code (IaC), the process of setting up AWS resources such as SES, S3, Lambda, and IAM roles is automated, making it easier to replicate and scale. This solution not only simplifies the setup but also allows for seamless updates and changes with minimal manual intervention.
+
+### **Key Features:**
+
+- **Email-to-Discord Integration**: Automatically sends the content of incoming emails to a specified Discord channel.
+- **Automated Infrastructure Deployment**: Leverages Terraform and GitHub Actions to manage the AWS resources, ensuring infrastructure as code (IaC).
+- **SES Email Handling**: Integrates AWS SES to handle email reception, verification, and rule-based routing.
+- **Secure and Scalable**: Utilizes AWS IAM roles, policies, and Lambda to ensure secure and scalable processing of incoming emails.
+
+### **Use Cases:**
+
+- **Alerts and Notifications**: Automatically forward system or service alerts received via email to a Discord channel for real-time monitoring.
+- **Email Parsing**: Parse and forward email contents to a team or group using Discord for collaboration.
+- **Automation**: Automate workflows based on emails, such as receiving a report and forwarding it to a team instantly.
+
+### **How It Works:**
+
+1. **SES receives an email** sent to a pre-configured address.
+2. **SES stores the email** in an S3 bucket.
+3. The **Lambda function** is triggered by the newly stored email in S3.
+4. The Lambda function extracts relevant email content and sends it to the specified **Discord Webhook URL**.
+5. All required AWS resources (IAM roles, SES, Lambda, S3) are managed and deployed using Terraform for ease of use and repeatability.
+
+This project is ideal for users who need a simple, scalable, and automated solution to forward emails to Discord channels for team collaboration, monitoring, or alerting purposes.
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
