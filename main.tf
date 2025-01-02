@@ -1,7 +1,7 @@
 // IAM Role
 
 resource "aws_iam_role" "discord-email-webhook" {
-  name = "${local.program_name}-iam-role"
+  name               = "${local.program_name}-iam-role"
   assume_role_policy = data.aws_iam_policy_document.policy_document.json
 }
 
@@ -12,10 +12,10 @@ resource "aws_lambda_function" "discord-email-webhook" {
   role          = aws_iam_role.discord-email-webhook.arn
   handler       = "EmailWebhookHandler::handleEvent"
   function_name = "Discord-Email-Webhook"
-  architectures = [ var.architecture ]
+  architectures = [var.architecture]
   filename      = var.lambda_path
   environment {
-    variables   = {
+    variables = {
       "WEBHOOK_ADDRESS" : var.webhook_address,
       "AWS_JAVA_V1_DISABLE_DEPRECATION_ANNOUNCEMENT" : true
     }
@@ -29,21 +29,21 @@ resource "aws_s3_bucket" "discord-email-webhook" {
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "discord-email-webhook" {
-  bucket    = aws_s3_bucket.discord-email-webhook.bucket
+  bucket = aws_s3_bucket.discord-email-webhook.bucket
   rule {
-    id      = "ExpireObjects"
+    id = "ExpireObjects"
     expiration {
-      days  = 7
+      days = 7
     }
-    status  = "Enabled"
+    status = "Enabled"
   }
 }
 
 resource "aws_s3_bucket_notification" "discord-email-webhook" {
-  bucket                = aws_s3_bucket.discord-email-webhook.bucket
+  bucket = aws_s3_bucket.discord-email-webhook.bucket
   lambda_function {
     lambda_function_arn = aws_lambda_function.discord-email-webhook.arn
-    events              = [
+    events = [
       "s3:ObjectCreated:Put",
       "s3:ObjectCreated:Post"
     ]
@@ -83,7 +83,7 @@ resource "aws_ses_receipt_rule" "discord-email-webhook" {
   rule_set_name = aws_ses_receipt_rule_set.discord-email-webhook.rule_set_name
   name          = aws_ses_receipt_rule_set.discord-email-webhook.rule_set_name
   after         = "S3"
-  recipients    = [ var.recipient ]
+  recipients    = [var.recipient]
   s3_action {
     bucket_name = aws_s3_bucket.discord-email-webhook.bucket
     position    = 0
