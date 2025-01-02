@@ -47,17 +47,14 @@ name: 'Terraform'
 on:
   # push:
   #   branches: [ "main" ]
+  # pull_request:
   workflow_dispatch:
 
 permissions:
   contents: write
 
 env:
-  TF_DISCORD_NAME: ""
-  TF_DOMAIN_NAME: ""
-  TF_RECIPIENT: ""
-  TF_WEBHOOK_ADDRESS: ""
-  TF_LAMBDA_PATH: "./target/scala-2.13/DiscordEmailWebhook-assembly-v1.0.0.jar"
+  TF_VAR_LAMBDA_PATH: "./target/scala-2.13/DiscordEmailWebhook-assembly-v1.0.0.jar"
 
 jobs:
   scala:
@@ -125,7 +122,13 @@ jobs:
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: terraform plan -var "discord_name=${{ env.TF_DISCORD_NAME }}" -var "domain_name=${{ env.TF_DOMAIN_NAME }}" -var "recipient=${{ env.TF_RECIPIENT }}" -var "webhook_address=${{ env.TF_WEBHOOK_ADDRESS }}"
+      env:
+        TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
+        TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
+        TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
+        TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
+        TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
+      run: terraform plan -out=plan
 
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
