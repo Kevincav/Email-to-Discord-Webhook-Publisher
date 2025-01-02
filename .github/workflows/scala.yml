@@ -12,7 +12,8 @@ permissions:
 
 env:
   TF_VAR_LAMBDA_PATH: "target/scala-2.13/DiscordEmailWebhook-assembly-v1.0.0.jar"
-  TF_VAR_TERRAFORM_PATH: "webhookPublisher.tfplan"
+  TF_VAR_TERRAFORM_PATH_DEVELOPMENT: "webhookPublisher.development.tfplan"
+  TF_VAR_TERRAFORM_PATH_PRODUCTION: "webhookPublisher.production.tfplan"
 
 jobs:
   build-lambda:
@@ -121,7 +122,7 @@ jobs:
 
 
   plan-terraform-development:
-    name: 'Plan Terraform'
+    name: 'Plan Terraform Development'
     runs-on: ubuntu-latest
     environment: development
     needs: check-terraform
@@ -155,17 +156,17 @@ jobs:
         TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
         TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
         TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
-      run: terraform plan -out=${{ env.TF_VAR_TERRAFORM_PATH }}
+      run: terraform plan -out=${{ env.TF_VAR_TERRAFORM_PATH_DEVELOPMENT }}
 
     - name: Upload Terraform Plan as Artifact
       uses: actions/upload-artifact@v4
       with:
         name: EmailWebhookHandlerPlan
-        path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+        path: ${{ env.TF_VAR_TERRAFORM_PATH_DEVELOPMENT }}
 
 
   publish-terraform-development:
-    name: 'Publish Terraform'
+    name: 'Publish Terraform Development'
     runs-on: ubuntu-latest
     environment: development
     needs: plan-terraform-development
@@ -185,7 +186,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: EmailWebhookHandlerPlan
-          path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+          path: ${{ env.TF_VAR_TERRAFORM_PATH_DEVELOPMENT }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
@@ -193,7 +194,7 @@ jobs:
 
 
   plan-terraform-production:
-    name: 'Plan Terraform'
+    name: 'Plan Terraform Production'
     runs-on: ubuntu-latest
     environment: production
     needs: publish-terraform-development
@@ -227,17 +228,17 @@ jobs:
           TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
-        run: terraform plan -out=${{ env.TF_VAR_TERRAFORM_PATH }}
+        run: terraform plan -out=${{ env.TF_VAR_TERRAFORM_PATH_PRODUCTION }}
 
       - name: Upload Terraform Plan as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: EmailWebhookHandlerPlan
-          path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+          path: ${{ env.TF_VAR_TERRAFORM_PATH_PRODUCTION }}
 
 
   publish-terraform-production:
-    name: 'Publish Terraform'
+    name: 'Publish Terraform Production'
     runs-on: ubuntu-latest
     environment: production
     needs: plan-terraform-production
@@ -257,7 +258,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: EmailWebhookHandlerPlan
-          path: ${{ env.TF_VAR_TERRAFORM_PATH }}
+          path: ${{ env.TF_VAR_TERRAFORM_PATH_PRODUCTION }}
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
