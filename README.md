@@ -152,6 +152,49 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 
 
+<!-- ARCHITECTURE -->
+## Architecture
+
+### Workflow
+
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Terraform Flow
+
+<br />
+<div align="center">
+<img src="images/architecture.png" alt="Logo">
+</div> 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### IAM
+
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### Lambda
+
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### S3
+
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+### SES
+
+
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
 <!-- ROADMAP -->
 ## Roadmap
 
