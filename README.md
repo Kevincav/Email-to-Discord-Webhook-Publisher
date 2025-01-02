@@ -74,50 +74,149 @@ with github actions.
 ---
 
 <!-- GETTING STARTED -->
-## Getting Started
+## Getting Started Guide
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+This guide will walk you through setting up a new AWS account, creating AWS credentials, cloning the project repository, and configuring environmental variables and secrets required to deploy your infrastructure using Terraform.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+- A **new AWS account**.
+- A **GitHub** account with access to a repository for storing your code and secrets.
+- Basic familiarity with **Terraform**, **AWS IAM**, and **GitHub Secrets**.
 
-### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-5. Change git remote url to avoid accidental pushes to base project
-   ```sh
-   git remote set-url origin Kevincav/Email-to-Discord-Webhook-Publisher
-   git remote -v # confirm the changes
-   ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+### 1. Create a New AWS Account
 
-<!-- USAGE EXAMPLES -->
-## Usage
+Follow these steps to create a new AWS account:
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+1. **Sign Up for AWS:**
+    - Visit the [AWS Sign-Up Page](https://aws.amazon.com/).
+    - Click on **Create a Free Account** and follow the steps to complete the sign-up process.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+2. **Log into the AWS Management Console:**
+    - Once you’ve created your AWS account, log in to the [AWS Management Console](https://aws.amazon.com/console/).
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+### 2. Create IAM User and AWS Access Keys
+
+To interact with AWS services from GitHub Actions, you’ll need to create IAM credentials (Access Key ID and Secret Access Key).
+
+1. **Navigate to IAM (Identity and Access Management):**
+    - In the AWS Console, go to the **IAM Dashboard**: [IAM Dashboard](https://console.aws.amazon.com/iam/).
+
+2. **Create a New IAM User:**
+    - In the left sidebar, select **Users**, then click **Add user**.
+    - Set a **Username** (e.g., `github-actions-user`).
+    - For **Access type**, select **Programmatic access** to generate API credentials (Access Key ID and Secret Access Key).
+
+3. **Attach Permissions:**
+    - On the **Permissions** step, choose **Attach policies directly**.
+    - Attach the **AdministratorAccess** policy (or create a custom policy if you need more fine-grained permissions).
+
+4. **Download Credentials:**
+    - After completing the wizard, **download the Access Key ID** and **Secret Access Key**. These will be used later in GitHub Actions.
+
+
+
+### 3. Set Up AWS Secrets in GitHub
+
+Now that you have your AWS credentials, you'll store them securely in GitHub Secrets to be accessed by GitHub Actions during deployment.
+
+1. **Go to GitHub Secrets:**
+    - In your GitHub repository, navigate to **Settings** (at the top of the repo page).
+    - In the left sidebar, click **Secrets** under the **Security** section.
+
+2. **Add the AWS Secrets:**
+    - Click **New repository secret** and add the following secrets:
+        - `AWS_ACCESS_KEY_ID`: Your AWS Access Key ID.
+        - `AWS_SECRET_ACCESS_KEY`: Your AWS Secret Access Key.
+
+These secrets will be used in GitHub Actions to authenticate with AWS during the deployment process.
+
+
+
+### 4. Clone the Repository
+
+Now that your AWS secrets are securely stored, you can clone the project repository that contains your Terraform code.
+
+1. **Clone the Repository:**
+    - Open a terminal and run the following command to clone the repository:
+      ```bash
+      git clone https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher.git
+      cd Email-to-Discord-Webhook-Publisher
+      ```
+
+
+
+### 5. Configure Environment Variables
+
+You’ll need to configure several environment variables to customize the infrastructure deployment.
+
+1. **Set the Required Variables:**
+   Inside your cloned project, locate the `variables.tf` or `.env` file (depending on your setup). Add the following variables:
+
+    - `discord_name`: Your Discord username or identifier (e.g., `mydiscord`).
+    - `domain_name`: The domain name you are using with AWS SES (e.g., `mydomain.com`).
+    - `lambda_path`: The path to your Lambda function code (e.g., `lambda/handler.zip`).
+    - `recipient`: The email address that SES will process (e.g., `contact@mydomain.com`).
+
+   Example `.env` or `terraform.tfvars` configuration:
+   ```hcl
+   discord_name = "mydiscord"
+   domain_name = "mydomain.com"
+   webhook_address = "discord webhook address"
+   recipient = "contact@mydomain.com"
+
+2. **Verify the Environment Variables:**
+
+Ensure that these variables are set correctly. These values will be passed to the Terraform configuration for resource creation.
+
+
+
+## 6. Deploying with GitHub Actions
+
+Now that everything is set up, deploying your infrastructure is easy! When you push changes to the repository, the configured GitHub Actions workflow will automatically deploy your Terraform infrastructure.
+
+1. **Push Changes to GitHub:**
+    - In the terminal, stage, commit, and push your changes to GitHub:
+      ```bash
+      git add .
+      git commit -m "Initial commit with environment variables"
+      git push origin main
+      ```
+
+   GitHub Actions will automatically start the Terraform workflow defined in `.github/workflows/terraform-deploy.yml`.
+
+2. **Monitor the Deployment:**
+   You can monitor the progress of the deployment by checking the **Actions** tab in your GitHub repository. The workflow will run automatically whenever changes are pushed to the repository.
+
+### Troubleshooting
+
+If you encounter issues, here are some common troubleshooting tips:
+
+- **Permissions Issues**:
+    - Ensure that the IAM user has the necessary permissions to manage the AWS resources defined in your Terraform configuration. If you encounter permission errors, check that the `AdministratorAccess` policy (or equivalent custom policies) is attached to the IAM user.
+
+- **Missing or Incorrect Secrets**:
+    - Double-check that the correct AWS credentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`) and environment variables (`discord_name`, `domain_name`, `lambda_path`, `recipient`) are set both locally and in GitHub Secrets. Missing secrets or incorrectly named secrets could prevent the deployment from running successfully.
+
+- **Terraform Errors**:
+    - If Terraform reports errors during `terraform apply`, check your Terraform configuration files for syntax issues or misconfigurations. Errors might also appear if the AWS resources you're creating conflict with existing resources or if permissions are lacking.
+
+- **GitHub Actions Failures**:
+    - If the GitHub Actions workflow fails, check the logs in the **Actions** tab of your repository. The logs will give you detailed error messages that can help you pinpoint any issues with the deployment process.
+
+
+
+### Conclusion
+
+You’ve now created a new AWS account, configured your AWS credentials, cloned the repository, set the required environment variables, and added your secrets to GitHub. With GitHub Actions configured, your infrastructure is ready to be deployed automatically using Terraform.
+
+If everything is set up correctly, GitHub Actions will handle the infrastructure deployment for you, automating the creation and management of AWS resources like Lambda, S3, SES, and IAM roles.
+
+Happy deploying! 🎉
 
 ---
 
