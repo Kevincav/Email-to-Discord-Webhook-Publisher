@@ -47,21 +47,55 @@ name: 'Terraform'
 on:
   # push:
   #   branches: [ "main" ]
-  # pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 env:
   TF_DISCORD_NAME: ""
   TF_DOMAIN_NAME: ""
   TF_RECIPIENT: ""
   TF_WEBHOOK_ADDRESS: ""
+  TF_LAMBDA_PATH: "./target/scala-2.13/DiscordEmailWebhook-assembly-v1.0.0.jar"
 
 jobs:
+  scala:
+    name: 'Scala'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: 21
+          distribution: corretto
+          cache: 'sbt'
+
+      - name: Set up SBT
+        uses: sbt/setup-sbt@v1
+
+      - name: Build and Test with Coverage
+        run: |
+          sbt coverage test
+          sbt coverageReport
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Publish New Lambda Function
+        run: sbt assembly
+
+      # Optional: This step uploads information to the GitHub dependency graph and unblocking Dependabot alerts for the repository
+      - name: Upload dependency graph
+        uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
+
   terraform:
     name: 'Terraform'
+    needs: scala
     runs-on: ubuntu-latest
     environment: production
 

@@ -8,6 +8,11 @@ variable "domain_name" {
   type        = string
 }
 
+variable "lambda_path" {
+  description = "Path of the Lambda Function"
+  type        = string
+}
+
 variable "recipient" {
   description = "Recipient"
   type        = string
