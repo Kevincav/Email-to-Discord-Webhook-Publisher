@@ -30,7 +30,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.png" alt="Logo" width="240" height="240">
   </a>
 
 <h3 align="center">project_title</h3>
