@@ -59,6 +59,8 @@ The idea for this project was inspired by the article ["Email to Discord Webhook
 
 By leveraging infrastructure as code (IaC), the process of setting up AWS resources such as SES, S3, Lambda, and IAM roles is automated, making it easier to replicate and scale. This solution not only simplifies the setup but also allows for seamless updates and changes with minimal manual intervention.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### **Key Features:**
 
 - **Email-to-Discord Integration**: Automatically sends the content of incoming emails to a specified Discord channel.
@@ -66,11 +68,15 @@ By leveraging infrastructure as code (IaC), the process of setting up AWS resour
 - **SES Email Handling**: Integrates AWS SES to handle email reception, verification, and rule-based routing.
 - **Secure and Scalable**: Utilizes AWS IAM roles, policies, and Lambda to ensure secure and scalable processing of incoming emails.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### **Use Cases:**
 
 - **Alerts and Notifications**: Automatically forward system or service alerts received via email to a Discord channel for real-time monitoring.
 - **Email Parsing**: Parse and forward email contents to a team or group using Discord for collaboration.
 - **Automation**: Automate workflows based on emails, such as receiving a report and forwarding it to a team instantly.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### **How It Works:**
 
@@ -101,13 +107,15 @@ This project is ideal for users who need a simple, scalable, and automated solut
 
 This guide will walk you through setting up a new AWS account, creating AWS credentials, cloning the project repository, and configuring environmental variables and secrets required to deploy your infrastructure using Terraform.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Prerequisites
 
 - A **new AWS account**.
 - A **GitHub** account with access to a repository for storing your code and secrets.
 - Basic familiarity with **Terraform**, **AWS IAM**, and **GitHub Secrets**.
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### 1. Create a New AWS Account
 
@@ -120,7 +128,7 @@ Follow these steps to create a new AWS account:
 2. **Log into the AWS Management Console:**
     - Once you’ve created your AWS account, log in to the [AWS Management Console](https://aws.amazon.com/console/).
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### 2. Create IAM User and AWS Access Keys
 
@@ -141,7 +149,7 @@ To interact with AWS services from GitHub Actions, you’ll need to create IAM c
 4. **Download Credentials:**
     - After completing the wizard, **download the Access Key ID** and **Secret Access Key**. These will be used later in GitHub Actions.
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### 3. Set Up AWS Secrets in GitHub
 
@@ -158,7 +166,7 @@ Now that you have your AWS credentials, you'll store them securely in GitHub Sec
 
 These secrets will be used in GitHub Actions to authenticate with AWS during the deployment process.
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### 4. Clone the Repository
 
@@ -171,7 +179,7 @@ Now that your AWS secrets are securely stored, you can clone the project reposit
       cd Email-to-Discord-Webhook-Publisher
       ```
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### 5. Configure Environment Variables
 
@@ -196,7 +204,7 @@ You’ll need to configure several environment variables to customize the infras
 
 Ensure that these variables are set correctly. These values will be passed to the Terraform configuration for resource creation.
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## 6. Deploying with GitHub Actions
 
@@ -215,6 +223,8 @@ Now that everything is set up, deploying your infrastructure is easy! When you p
 2. **Monitor the Deployment:**
    You can monitor the progress of the deployment by checking the **Actions** tab in your GitHub repository. The workflow will run automatically whenever changes are pushed to the repository.
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ### Troubleshooting
 
 If you encounter issues, here are some common troubleshooting tips:
@@ -231,7 +241,7 @@ If you encounter issues, here are some common troubleshooting tips:
 - **GitHub Actions Failures**:
     - If the GitHub Actions workflow fails, check the logs in the **Actions** tab of your repository. The logs will give you detailed error messages that can help you pinpoint any issues with the deployment process.
 
-
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Conclusion
 
@@ -240,6 +250,8 @@ You’ve now created a new AWS account, configured your AWS credentials, cloned 
 If everything is set up correctly, GitHub Actions will handle the infrastructure deployment for you, automating the creation and management of AWS resources like Lambda, S3, SES, and IAM roles.
 
 Happy deploying! 🎉
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ---
 
