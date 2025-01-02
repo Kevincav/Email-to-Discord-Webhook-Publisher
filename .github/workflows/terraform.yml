@@ -24,6 +24,7 @@ jobs:
   scala:
     name: 'Scala'
     runs-on: ubuntu-latest
+    environment: development
     steps:
       - uses: actions/checkout@v4
 
@@ -58,7 +59,7 @@ jobs:
     name: 'Terraform'
     needs: scala
     runs-on: ubuntu-latest
-    # environment: production
+    environment: development
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
