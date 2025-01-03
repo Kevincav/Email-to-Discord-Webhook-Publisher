@@ -16,8 +16,7 @@ resource "aws_lambda_function" "discord-email-webhook" {
   filename      = var.lambda_path
   environment {
     variables = {
-      "WEBHOOK_ADDRESS" : var.webhook_address,
-      "AWS_JAVA_V1_DISABLE_DEPRECATION_ANNOUNCEMENT" : true
+      "WEBHOOK_ADDRESS" : var.webhook_address
     }
   }
 }
