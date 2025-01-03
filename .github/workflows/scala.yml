@@ -12,7 +12,8 @@ permissions:
   contents: write
 
 env:
-  TF_VAR_LAMBDA_PATH: "target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar"
+  TF_VAR_LAMBDA_JAR: "target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar"
+  TF_VAR_LAMBDA_ZIP: "DiscordEmailWebhook.zip"
 
 jobs:
   build-lambda:
@@ -83,6 +84,9 @@ jobs:
       - name: Publish New Lambda Function
         run: sbt assembly
 
+      - name: Zip Jar Program
+        run: zip ${{ env.TF_VAR_LAMBDA_ZIP }} ${{ env.TF_VAR_LAMBDA_JAR }}
+
       - name: Upload Lambda as Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -137,7 +141,7 @@ jobs:
         TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
         TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
         TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-        TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
+        TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
         TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
         TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
       run: terraform plan
@@ -168,7 +172,7 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
+          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
         if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -200,7 +204,7 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
+          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
         run: terraform plan
@@ -237,7 +241,7 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_PATH }}
+          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
