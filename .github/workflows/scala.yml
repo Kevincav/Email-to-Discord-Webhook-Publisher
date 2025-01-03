@@ -56,8 +56,8 @@ jobs:
 
       - name: Set up docker permissions
         run: |
-          gpasswd -a $USER docker
-          service docker restart
+          sudo gpasswd -a $USER docker
+          sudo service docker restart
 
       - name: Build and Test with Coverage
         run: |
