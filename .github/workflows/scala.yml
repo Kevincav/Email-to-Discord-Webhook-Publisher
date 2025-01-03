@@ -57,7 +57,9 @@ jobs:
       - name: Set up docker permissions
         run: |
           sudo gpasswd -a $USER docker
+      - run: |
           sudo service docker restart
+      - run: |
           sudo chmod 666 /var/run/docker.sock
 
       - name: Build and Test with Coverage
