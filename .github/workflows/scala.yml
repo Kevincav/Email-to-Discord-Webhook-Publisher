@@ -108,9 +108,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
 
-      - name: Terraform Init
-        run: terraform init
-
       - name: Terraform Format
         run: terraform fmt -check
 
@@ -161,6 +158,9 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
 
       - name: Terraform Apply
         env:
@@ -221,6 +221,9 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
 
       - name: Download Lambda as Artifact
         uses: actions/download-artifact@v4
