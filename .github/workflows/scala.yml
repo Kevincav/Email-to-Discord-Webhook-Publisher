@@ -12,8 +12,8 @@ permissions:
   contents: write
 
 env:
-  TF_VAR_LAMBDA_JAR: "target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar"
-  TF_VAR_LAMBDA_ZIP: "DiscordEmailWebhook.zip"
+  TF_VAR_LAMBDA_JAR: "./target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar"
+  TF_VAR_LAMBDA_ZIP: "./DiscordEmailWebhook.zip"
 
 jobs:
   build-lambda:
