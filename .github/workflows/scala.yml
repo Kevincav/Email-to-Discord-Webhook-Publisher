@@ -166,6 +166,12 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Download Lambda as Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: EmailWebhookHandlerLambda
+          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+
       - name: Terraform Apply
         env:
           TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
@@ -233,7 +239,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: EmailWebhookHandlerLambda
-          path: ${{ env.TF_VAR_LAMBDA_PATH }}
+          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
 
       - name: Terraform Apply
         env:
