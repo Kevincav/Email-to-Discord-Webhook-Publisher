@@ -46,7 +46,7 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
       type        = "AWS"
     }
     actions   = ["s3:GetObject"]
-    resources = ["${aws_s3_bucket.discord-email-webhook.bucket}/*"]
+    resources = ["${aws_s3_bucket.discord-email-webhook.arn}/*"]
   }
   statement {
     sid    = "AllowSESPuts"
@@ -56,7 +56,7 @@ data "aws_iam_policy_document" "s3_bucket_policy" {
       type        = "Service"
     }
     actions   = ["s3:PutObject"]
-    resources = ["${aws_s3_bucket.discord-email-webhook.bucket}/*"]
+    resources = ["${aws_s3_bucket.discord-email-webhook.arn}/*"]
     condition {
       test     = "StringEquals"
       values   = [data.aws_caller_identity.discord-email-webhook.account_id]
