@@ -91,7 +91,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: EmailWebhookHandlerLambda
-          path: ${{ env.TF_VAR_LAMBDA_PATH }}
+          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
 
       - name: Upload dependency graph
         uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
