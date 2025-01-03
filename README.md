@@ -23,6 +23,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT][license-shield]][license-url]
+[![Codecov][codecov-shield]][codecov-url]
 
 
 
@@ -465,15 +466,15 @@ Project Link: [https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher](h
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge?
 [contributors-url]: https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge?
 [forks-url]: https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher/network/members
-[stars-shield]: https://img.shields.io/github/stars/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge?
 [stars-url]: https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher/stargazers
-[issues-shield]: https://img.shields.io/github/issues/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge?
 [issues-url]: https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher/issues
-[license-shield]: https://img.shields.io/github/license/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/Kevincav/Email-to-Discord-Webhook-Publisher.svg?style=for-the-badge?
 [license-url]: https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/linkedin_username
@@ -504,3 +505,5 @@ Project Link: [https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher](h
 [SQLite-url]: https://www.sqlite.org/
 [Terraform.js]: https://img.shields.io/badge/Terraform-20232A?style=for-the-badge&logo=terraform&logoColor=61DAFB
 [Terraform-url]: https://www.terraform.io/
+[Codecov-shield]: https://codecov.io/gh/Kevincav/Email-to-Discord-Webhook-Publisher/graph/badge.svg?token=WOHkRdjJHb
+[Codecov-url]: https://codecov.io/gh/Kevincav/Email-to-Discord-Webhook-Publisher
