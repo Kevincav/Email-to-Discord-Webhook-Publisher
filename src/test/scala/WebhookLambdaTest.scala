@@ -54,7 +54,7 @@ class WebhookLambdaTest extends AnyFlatSpec with Matchers with MockitoSugar {
     val wireMockServer: WireMockServer = WireMockServer(10000)
     wireMockServer.stubFor(post(urlEqualTo("/webhook")).willReturn(aResponse.withStatus(200)))
     wireMockServer.start()
-    Await.result(WebhookLambda(mockS3Client).handleRequest(S3Event(List(s3EventNotificationRecord).asJava), mockContext), 1.second) shouldBe StatusCode(200)
+    Await.result(WebhookLambda(mockS3Client).handleRequest(S3Event(List(s3EventNotificationRecord).asJava), mockContext), 1.second).code shouldBe StatusCode(200)
     wireMockServer.stop()
   }
 }
