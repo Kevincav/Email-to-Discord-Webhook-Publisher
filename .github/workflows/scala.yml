@@ -83,9 +83,6 @@ jobs:
       - name: Publish New Lambda Function
         run: sbt assembly
 
-      - name: Zip Jar Program
-        run: zip ${{ env.TF_VAR_LAMBDA_ZIP }} ${{ env.TF_VAR_LAMBDA_JAR }}
-
       - uses: shallwefootball/s3-upload-action@master
         with:
           aws_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
