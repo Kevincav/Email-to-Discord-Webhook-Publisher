@@ -185,7 +185,7 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/"main"' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply ${{ env.TF_VAR_TERRAFORM_PATH_DEVELOPMENT }} -auto-approve
 
   plan-terraform-production:
     name: 'Plan Terraform Production'
@@ -255,4 +255,4 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/"main"' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply ${{ env.TF_VAR_TERRAFORM_PATH_PRODUCTION }} -auto-approve
