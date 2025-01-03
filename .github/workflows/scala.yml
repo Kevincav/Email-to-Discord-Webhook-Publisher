@@ -58,6 +58,7 @@ jobs:
         run: |
           sudo gpasswd -a $USER docker
           sudo service docker restart
+          sudo chmod 666 /var/run/docker.sock
 
       - name: Build and Test with Coverage
         run: |
