@@ -13,7 +13,6 @@ permissions:
 
 env:
   TF_VAR_LAMBDA_JAR: "target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar"
-  TF_VAR_LAMBDA_ZIP: "DiscordEmailWebhook.zip"
 
 jobs:
   build-lambda:
@@ -87,11 +86,12 @@ jobs:
       - name: Zip Jar Program
         run: zip ${{ env.TF_VAR_LAMBDA_ZIP }} ${{ env.TF_VAR_LAMBDA_JAR }}
 
-      - name: Upload Lambda as Artifact
-        uses: actions/upload-artifact@v4
+      - uses: shallwefootball/s3-upload-action@master
         with:
-          name: EmailWebhookHandlerLambda
-          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+          aws_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
+          aws_bucket: ${{ secrets.AWS_BUCKET }}
+          source_dir: ${{ env.TF_VAR_LAMBDA_JAR }}
 
       - name: Upload dependency graph
         uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
@@ -141,7 +141,7 @@ jobs:
         TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
         TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
         TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-        TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+        TF_VAR_s3_bucket: "${{ env.TF_VAR_LAMBDA_JAR }}/DiscordEmailWebhook-assembly-v1.0.0.jar"
         TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
         TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
       run: terraform plan
@@ -166,22 +166,16 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Download Lambda as Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: EmailWebhookHandlerLambda
-          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
-
       - name: Terraform Apply
         env:
           TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+          TF_VAR_s3_bucket: "${{ env.TF_VAR_LAMBDA_JAR }}/DiscordEmailWebhook-assembly-v1.0.0.jar"
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
-        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch1')
         run: terraform apply -auto-approve
 
   plan-terraform-production:
@@ -210,7 +204,7 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+          TF_VAR_s3_bucket: "${{ env.TF_VAR_LAMBDA_JAR }}/DiscordEmailWebhook-assembly-v1.0.0.jar"
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
         run: terraform plan
@@ -235,19 +229,13 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Download Lambda as Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: EmailWebhookHandlerLambda
-          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
-
       - name: Terraform Apply
         env:
           TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+          TF_VAR_s3_bucket: "${{ env.TF_VAR_LAMBDA_JAR }}/DiscordEmailWebhook-assembly-v1.0.0.jar"
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
