@@ -10,7 +10,7 @@ resource "aws_iam_role" "discord-email-webhook" {
 resource "aws_lambda_function" "discord-email-webhook" {
   runtime       = var.runtime
   role          = aws_iam_role.discord-email-webhook.arn
-  handler       = "WebhookLambda::handleEvent"
+  handler       = "WebhookLambda::handleRequest"
   function_name = "${local.program_name}-Discord-Email-Webhook"
   architectures = [var.architecture]
   filename      = var.lambda_path

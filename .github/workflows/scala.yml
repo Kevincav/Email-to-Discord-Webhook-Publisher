@@ -54,10 +54,6 @@ jobs:
       - name: Set up SBT
         uses: sbt/setup-sbt@v1
 
-      - name: Set up docker permissions
-        run: |
-          sudo gpasswd -a $USER docker && sudo service docker restart && sudo chmod 666 /var/run/docker.sock
-
       - name: Build and Test with Coverage
         run: |
           sbt coverage test

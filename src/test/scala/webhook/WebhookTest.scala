@@ -80,10 +80,10 @@ class WebhookTest extends AnyFlatSpec with BeforeAndAfter with Matchers {
   }
 
   "webhook class" should "publish a webhook request" in {
-    val wireMockServer: WireMockServer = WireMockServer(9998)
+    val wireMockServer: WireMockServer = WireMockServer(10001)
     wireMockServer.stubFor(post(urlEqualTo("/webhook")).willReturn(aResponse.withStatus(200)))
     wireMockServer.start()
-    val result = Await.result(Webhook.publish("http://localhost:9998/webhook", WebhookData(List(WebhookEmbed(Some("Test Title"), Some("Test Description"))))), 2.seconds)
+    val result = Await.result(Webhook.publish("http://localhost:10001/webhook", WebhookData(List(WebhookEmbed(Some("Test Title"), Some("Test Description"))))), 2.seconds)
     wireMockServer.stop()
     result.code shouldBe StatusCode(200)
   }

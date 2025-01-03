@@ -6,6 +6,8 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       // AWS
       "software.amazon.awssdk" % "s3" % "2.29.44",
+      "com.amazonaws" % "aws-java-sdk-lambda" % "1.12.780",
+      "com.amazonaws" % "aws-lambda-java-core" % "1.2.3",
       "com.amazonaws" % "aws-lambda-java-events" % "3.14.0",
 
       // Email Parsing and Conversion
@@ -23,7 +25,6 @@ lazy val root = (project in file("."))
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "org.scalatestplus" %% "mockito-5-12" % "3.2.19.0" % Test,
       "com.github.tomakehurst" % "wiremock-standalone" % "3.0.1",
-      "org.testcontainers" % "localstack" % "1.20.4",
     ),
     assemblyMergeStrategy := (_ => MergeStrategy.first)
   )
