@@ -56,7 +56,6 @@ jobs:
 
       - name: Set up docker permissions
         run: |
-          groupadd docker
           gpasswd -a $USER docker
           service docker restart
 
