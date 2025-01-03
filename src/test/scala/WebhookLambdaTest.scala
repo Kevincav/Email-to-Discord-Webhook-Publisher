@@ -13,8 +13,6 @@ import software.amazon.awssdk.services.s3.model.{GetObjectRequest, GetObjectResp
 import sttp.model.StatusCode
 
 import java.io.ByteArrayInputStream
-import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters.*
 
 class WebhookLambdaTest extends AnyFlatSpec with Matchers with MockitoSugar {
@@ -54,7 +52,7 @@ class WebhookLambdaTest extends AnyFlatSpec with Matchers with MockitoSugar {
     val wireMockServer: WireMockServer = WireMockServer(10000)
     wireMockServer.stubFor(post(urlEqualTo("/webhook")).willReturn(aResponse.withStatus(200)))
     wireMockServer.start()
-    Await.result(WebhookLambda(mockS3Client).handleRequest(S3Event(List(s3EventNotificationRecord).asJava), mockContext), 1.second).code shouldBe StatusCode(200)
+    WebhookLambda(mockS3Client).handleRequest(S3Event(List(s3EventNotificationRecord).asJava), mockContext).code shouldBe StatusCode(200)
     wireMockServer.stop()
   }
 }
