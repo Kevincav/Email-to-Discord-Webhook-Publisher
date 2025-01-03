@@ -40,7 +40,7 @@ jobs:
     name: 'Publish Lambda'
     runs-on: build-latest
     environment: development
-    needs: test-lambda
+    needs: build-lambda
     steps:
       - uses: actions/checkout@v4
 

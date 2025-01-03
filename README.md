@@ -504,4 +504,3 @@ Project Link: [https://github.com/Kevincav/Email-to-Discord-Webhook-Publisher](h
 [SQLite-url]: https://www.sqlite.org/
 [Terraform.js]: https://img.shields.io/badge/Terraform-20232A?style=for-the-badge&logo=terraform&logoColor=61DAFB
 [Terraform-url]: https://www.terraform.io/
-
