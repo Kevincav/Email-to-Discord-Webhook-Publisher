@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 env:
-  TF_VAR_LAMBDA_PATH: "target/scala-2.13/DiscordEmailWebhook-assembly-v1.0.0.jar"
+  TF_VAR_LAMBDA_PATH: "target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar"
   TF_VAR_TERRAFORM_PATH_DEVELOPMENT: "webhookPublisher.development.tfplan"
   TF_VAR_TERRAFORM_PATH_PRODUCTION: "webhookPublisher.production.tfplan"
 
@@ -43,18 +43,28 @@ jobs:
     needs: build-lambda
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: corretto
           cache: 'sbt'
+
       - name: Set up SBT
         uses: sbt/setup-sbt@v1
+
+      - name: Set up docker permissions
+        run: |
+          groupadd docker
+          gpasswd -a $USER docker
+          service docker restart
+
       - name: Build and Test with Coverage
         run: |
           sbt coverage test
           sbt coverageReport
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         env:

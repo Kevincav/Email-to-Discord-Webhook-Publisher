@@ -46,7 +46,7 @@ class WebhookLambdaTest extends AnyFlatSpec with Matchers {
       S3ObjectEntity("testKey", 5065717, "c2d226b2e97bec9265eb7e59d2dfac41", "2.0", ""), "s3SchemaVersion"), UserIdentityEntity("EXAMPLE"))
 
   "handle request" should "publish a webhook upon call" in {
-    val localStack = new LocalStackContainer(DockerImageName.parse("localstack/localstack:3")).withServices(LocalStackContainer.Service.S3)
+    val localStack = LocalStackContainer(DockerImageName.parse("localstack/localstack:3")).withServices(LocalStackContainer.Service.S3)
     val s3Client: S3Client = S3Client.builder()
       .endpointOverride(localStack.getEndpoint)
       .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(localStack.getAccessKey, localStack.getSecretKey)))

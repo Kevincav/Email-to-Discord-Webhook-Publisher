@@ -12,50 +12,50 @@ import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 
 class WebhookTest extends AnyFlatSpec with BeforeAndAfter with Matchers {
-  val inputStreamWithHTML = new ByteArrayInputStream("""From: sender@example.com
-                                                       |To: recipient@example.com
-                                                       |Subject: Multipart Email Example
-                                                       |Content-Type: multipart/alternative; boundary="boundary-string"
-                                                       |
-                                                       |--your-boundary
-                                                       |Content-Type: text/plain; charset="utf-8"
-                                                       |Content-Transfer-Encoding: quoted-printable
-                                                       |Content-Disposition: inline
-                                                       |
-                                                       |Plain text email goes here!
-                                                       |This is the fallback if email client does not support HTML
-                                                       |
-                                                       |--boundary-string
-                                                       |Content-Type: text/html; charset="utf-8"
-                                                       |Content-Transfer-Encoding: quoted-printable
-                                                       |Content-Disposition: inline
-                                                       |
-                                                       |<h1>This is the HTML Section!</h1>
-                                                       |<p>This is what displays in most modern email clients</p>
-                                                       |
-                                                       |--boundary-string--""".stripMargin.getBytes)
-
-  val inputStreamText = new ByteArrayInputStream("""From: Some One <someone@example.com>
-                                                   |MIME-Version: 1.0
+  val inputStreamWithHTML = ByteArrayInputStream("""From: sender@example.com
+                                                   |To: recipient@example.com
                                                    |Subject: Multipart Email Example
-                                                   |Content-Type: multipart/mixed;
-                                                   |        boundary="XXXXboundary text"
+                                                   |Content-Type: multipart/alternative; boundary="boundary-string"
                                                    |
-                                                   |This is a multipart message in MIME format.
+                                                   |--your-boundary
+                                                   |Content-Type: text/plain; charset="utf-8"
+                                                   |Content-Transfer-Encoding: quoted-printable
+                                                   |Content-Disposition: inline
                                                    |
-                                                   |--XXXXboundary text
-                                                   |Content-Type: text/plain
+                                                   |Plain text email goes here!
+                                                   |This is the fallback if email client does not support HTML
                                                    |
-                                                   |this is the body text
+                                                   |--boundary-string
+                                                   |Content-Type: text/html; charset="utf-8"
+                                                   |Content-Transfer-Encoding: quoted-printable
+                                                   |Content-Disposition: inline
                                                    |
-                                                   |--XXXXboundary text
-                                                   |Content-Type: text/plain;
-                                                   |Content-Disposition: attachment;
-                                                   |        filename="test.txt"
+                                                   |<h1>This is the HTML Section!</h1>
+                                                   |<p>This is what displays in most modern email clients</p>
                                                    |
-                                                   |this is the attachment text
-                                                   |
-                                                   |--XXXXboundary text--""".stripMargin.getBytes)
+                                                   |--boundary-string--""".stripMargin.getBytes)
+
+  val inputStreamText = ByteArrayInputStream("""From: Some One <someone@example.com>
+                                               |MIME-Version: 1.0
+                                               |Subject: Multipart Email Example
+                                               |Content-Type: multipart/mixed;
+                                               |        boundary="XXXXboundary text"
+                                               |
+                                               |This is a multipart message in MIME format.
+                                               |
+                                               |--XXXXboundary text
+                                               |Content-Type: text/plain
+                                               |
+                                               |this is the body text
+                                               |
+                                               |--XXXXboundary text
+                                               |Content-Type: text/plain;
+                                               |Content-Disposition: attachment;
+                                               |        filename="test.txt"
+                                               |
+                                               |this is the attachment text
+                                               |
+                                               |--XXXXboundary text--""".stripMargin.getBytes)
 
   it should "test the classes" in {
     WebhookEmbed(Some("Test1")).title.get shouldBe "Test1"
