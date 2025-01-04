@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Deploy Lambda
-        uses: ./.github/workflows/lambda.yml
+        uses: ./.github/workflows/lambda
         with:
           environment: ${{ matrix.target }}
 
@@ -37,7 +37,7 @@ jobs:
           path: variables.txt
 
       - name: Deploy Services with Terraform
-        uses: ./.github/workflows/terraform.yml
+        uses: ./.github/workflows/terraform
         with:
           environment: ${{ matrix.target }}
           bucket: "$(head -1 variables.txt)"
