@@ -66,20 +66,20 @@ jobs:
         run: |
           ASSEMBLY_PATH=$(sbt assembly | grep -e "Assembly jar up to date: " -e "Built: " | awk -F' ' '{print $NF}' | awk -F".jar" '{printf "%s.jar", $1}')
           echo "ASSEMBLY_PATH=$ASSEMBLY_PATH" >> $GITHUB_OUTPUT
-          echo ${{ env.TF_VAR_LAMBDA_BUCKET }} > "${{inputs.environment}}.variables"
-          basename $ASSEMBLY_PATH >> "${{inputs.environment}}.variables"
-          echo $ASSEMBLY_PATH >> "${{inputs.environment}}.variables"
+          echo ${{ env.TF_VAR_LAMBDA_BUCKET }} > "${{ inputs.environment }}.variables"
+          basename $ASSEMBLY_PATH >> "${{ inputs.environment }}.variables"
+          echo $ASSEMBLY_PATH >> "${{ inputs.environment }}.variables"
 
       - name: Upload Variable Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "${{inputs.environment}}-variables"
-          path: "${{inputs.environment}}.variables"
+          name: "${{ inputs.environment }}-variables"
+          path: "${{ inputs.environment }}.variables"
 
       - name: Upload Assembled Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "${{inputs.environment}}-lambdaFunction"
+          name: "${{ inputs.environment }}-lambdaFunction"
           path: ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }}
 
 
@@ -102,22 +102,22 @@ jobs:
       - name: Download Variable Artifact
         uses: actions/download-artifact@v4
         with:
-          name: "${{ inputs.environment}}-variables"
-          path: "${{ inputs.environment}}.variables"
+          name: "${{ inputs.environment }}-variables"
+          path: "${{ inputs.environment }}.variables"
 
       - name: Download Assembled Artifact
         uses: actions/download-artifact@v4
         with:
-          name: "${{inputs.environment}}-lambdaFunction"
-          path: "$(tail -1 ${{ inputs.environment}}.variables)"
+          name: "${{ inputs.environment }}-lambdaFunction"
+          path: "$(tail -1 ${{ inputs.environment }}.variables)"
 
       - name: Create (if exists) S3 bucket
         env:
-          aws_bucket: "$(head -1 ${{ inputs.environment}}.variables)"
-        run: aws s3 mb "s3://${{ env.aws_bucket }}"
+          aws_bucket: "s3://$(head -1 ${{ inputs.environment }}.variables)"
+        run: aws s3 mb ${{ env.aws_bucket }}
 
       - name: Copy Program to S3 Bucket
         env:
-          aws_bucket: "$(head -1 ${{ inputs.environment}}.variables)"
-          assembly_path: "$(tail -1 ${{ inputs.environment}}.variables)"
-        run: aws s3 cp ${{ env.assembly_path }} "s3://${{ env.aws_bucket }}"
+          aws_bucket: "$(head -1 ${{ inputs.environment }}.variables)"
+          assembly_path: "s3://$(tail -1 ${{ inputs.environment }}.variables)"
+        run: aws s3 cp ${{ env.assembly_path }} ${{ env.aws_bucket }}

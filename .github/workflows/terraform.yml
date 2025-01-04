@@ -89,12 +89,12 @@ jobs:
       - name: Download Variable Artifact
         uses: actions/download-artifact@v4
         with:
-          name: "${{inputs.environment}}-variables"
-          path: "${{inputs.environment}}.variables"
+          name: "${{ inputs.environment }}-variables"
+          path: "${{ inputs.environment }}.variables"
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         env:
-          TF_VAR_lambda_bucket: "$(head -1 ${{inputs.environment}}.variables)"
-          TF_VAR_lambda_key: "$(head -2 ${{inputs.environment}}.variables | tail -1)"
+          TF_VAR_lambda_bucket: "$(head -1 ${{ inputs.environment }}.variables)"
+          TF_VAR_lambda_key: "$(head -2 ${{ inputs.environment }}.variables | tail -1)"
         run: terraform apply -auto-approve
