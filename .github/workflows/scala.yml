@@ -82,7 +82,7 @@ jobs:
 
       - name: Publish New Lambda Function
         run: |
-          echo "ASSEMBLY_PATH=${grep -e "Assembly jar up to date: " -e "Built: " ASSEMBLY_OUTPUT | awk -F' ' '{print $NF}'}" >> $GITHUB_OUTPUT
+          echo "ASSEMBLY_PATH=${sbt assembly | grep -e "Assembly jar up to date: " -e "Built: " ASSEMBLY_OUTPUT | awk -F' ' '{print $NF}'}" >> $GITHUB_OUTPUT
           echo "FILE_PATH=${awk -F. '{print $NF}' ${{ steps.Publish_New_Lambda_Function.outputs.ASSEMBLY_PATH }}" >> $GITHUB_OUTPUT
           echo ${{ steps.Publish_New_Lambda_Function.outputs.ASSEMBLY_PATH }}
           echo ${{ steps.Publish_New_Lambda_Function.outputs.FILE_PATH }}
