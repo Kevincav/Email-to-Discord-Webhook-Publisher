@@ -19,14 +19,37 @@ env:
   TF_VAR_region: ${{ vars.AWS_REGION }}
 
 jobs:
-  check-terraform:
-    name: 'Check Terraform'
+  parse-artifacts:
+    name: Parse Variable Parameters
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment}}
+    environment: ${{ inputs.environment }}
+    outputs:
+      S3_BUCKET: ${{ steps.parse-variables.outputs.S3_BUCKET }}
+      S3_KEY: ${{ steps.parse-variables.outputs.S3_KEY }}
 
     defaults:
       run:
         shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Variable Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: "${{ inputs.environment }}-variables"
+
+      - name: Parse Variables
+        id: parse-variables
+        run: |
+          echo "S3_BUCKET=$(head -1 ${{ inputs.environment }}.variables)" >> $GITHUB_OUTPUT
+          echo "S3_KEY=$(head -2 ${{ inputs.environment }}.variables | tail -1)" >> $GITHUB_OUTPUT
+
+  check-terraform:
+    name: 'Check Terraform'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
 
     steps:
       - name: Checkout
@@ -44,10 +67,6 @@ jobs:
     environment: ${{ inputs.environment}}
     needs: check-terraform
 
-    defaults:
-      run:
-        shell: bash
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -64,12 +83,8 @@ jobs:
   publish-terraform:
     name: 'Publish Terraform'
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment}}
-    needs: plan-terraform
-
-    defaults:
-      run:
-        shell: bash
+    environment: ${{ inputs.environment }}
+    needs: [parse-artifacts, plan-terraform]
 
     steps:
       - name: Checkout
@@ -81,14 +96,9 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Download Variable Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: "${{ inputs.environment }}-variables"
-
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         env:
-          TF_VAR_lambda_bucket: "$(head -1 ${{ inputs.environment }}.variables)"
-          TF_VAR_lambda_key: "$(head -2 ${{ inputs.environment }}.variables | tail -1)"
+          TF_VAR_lambda_bucket: ${{ needs.parse-artifacts.outputs.S3_BUCKET }}
+          TF_VAR_lambda_key: ${{ needs.parse-artifacts.outputs.S3_KEY }}
         run: terraform apply -auto-approve

@@ -110,6 +110,12 @@ jobs:
         with:
           name: "${{ inputs.environment }}-lambdaFunction"
 
+      - name: uhhhhh
+        run: |
+          ls -al
+          ls -al target
+          ls -al target/scala-3.6.2
+
       - name: Create (if exists) S3 bucket
         run: aws s3 mb "s3://${{ needs.assemble-lambda.outputs.s3_bucket }}"
 
