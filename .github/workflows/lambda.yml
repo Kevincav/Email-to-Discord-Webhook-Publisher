@@ -73,13 +73,13 @@ jobs:
       - name: Upload Variable Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: variables
-          path: variables.txt
+          name: "${{inputs.environment}}-variables"
+          path: "${{inputs.environment}}.variables"
 
-      - name: Upload Assembled
+      - name: Upload Assembled Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: lambdaFunction
+          name: "${{inputs.environment}}-lambdaFunction"
           path: ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }}
 
 
@@ -102,22 +102,22 @@ jobs:
       - name: Download Variable Artifact
         uses: actions/download-artifact@v4
         with:
-          name: variables
-          path: variables.txt
+          name: "${{ inputs.environment}}-variables"
+          path: "${{ inputs.environment}}.variables"
 
-      - name: Download Assembled
-        uses: actions/upload-artifact@v4
+      - name: Download Assembled Artifact
+        uses: actions/download-artifact@v4
         with:
-          name: lambdaFunction
-          path: "$(tail -1 variable.txt)"
+          name: "${{inputs.environment}}-lambdaFunction"
+          path: "$(tail -1 ${{ inputs.environment}}.variables)"
 
       - name: Create (if exists) S3 bucket
         env:
-          aws_bucket: "$(head -1 variable.txt)"
+          aws_bucket: "$(head -1 ${{ inputs.environment}}.variables)"
         run: aws s3 mb "s3://${{ env.aws_bucket }}"
 
       - name: Copy Program to S3 Bucket
         env:
-          aws_bucket: "$(head -1 variable.txt)"
-          assembly_path: "$(tail -1 variable.txt)"
+          aws_bucket: "$(head -1 ${{ inputs.environment}}.variables)"
+          assembly_path: "$(tail -1 ${{ inputs.environment}}.variables)"
         run: aws s3 cp ${{ env.assembly_path }} "s3://${{ env.aws_bucket }}"
