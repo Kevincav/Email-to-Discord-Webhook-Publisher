@@ -15,7 +15,7 @@ jobs:
   test-lambda:
     name: 'Test Lambda'
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment}}
+    environment: ${{ inputs.environment }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -43,15 +43,15 @@ jobs:
   assemble-lambda:
     name: 'Assemble Lambda and Upload as Artifact'
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment}}
+    environment: ${{ inputs.environment }}
     needs: test-lambda
 
     env:
       TF_VAR_LAMBDA_BUCKET: "${{ vars.TF_VAR_RECIPIENT }}-${{ vars.TF_VAR_DISCORD_NAME }}-lambda-functions"
 
     outputs:
-      s3_bucket: ${{ env.TF_VAR_LAMBDA_BUCKET }}
-      lambda_path: ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }}
+      S3_BUCKET: ${{ env.TF_VAR_LAMBDA_BUCKET }}
+      ASSEMBLY_FILE: ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_FILE }}
 
     steps:
       - name: Checkout
@@ -72,6 +72,7 @@ jobs:
         run: |
           ASSEMBLY_PATH=$(sbt assembly | grep -e "Assembly jar up to date: " -e "Built: " | awk -F' ' '{print $NF}' | awk -F".jar" '{printf "%s.jar", $1}')
           echo "ASSEMBLY_PATH=$ASSEMBLY_PATH" >> $GITHUB_OUTPUT
+          echo "ASSEMBLY_FILE=$(basename $ASSEMBLY_PATH)" >> $GITHUB_OUTPUT
           echo ${{ env.TF_VAR_LAMBDA_BUCKET }} > "${{ inputs.environment }}.variables"
           basename $ASSEMBLY_PATH >> "${{ inputs.environment }}.variables"
           echo $ASSEMBLY_PATH >> "${{ inputs.environment }}.variables"
@@ -92,7 +93,7 @@ jobs:
   publish-lambda-to-aws:
     name: "Publish Lambda to AWS"
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment}}
+    environment: ${{ inputs.environment }}
     needs: assemble-lambda
     steps:
       - name: Checkout
@@ -117,7 +118,7 @@ jobs:
           ls -al target/scala-3.6.2
 
       - name: Create (if exists) S3 bucket
-        run: aws s3 mb "s3://${{ needs.assemble-lambda.outputs.s3_bucket }}"
+        run: aws s3 mb "s3://${{ needs.assemble-lambda.outputs.S3_BUCKET }}"
 
       - name: Copy Program to S3 Bucket
-        run: aws s3 cp ${{ needs.assemble-lambda.outputs.lambda_path }} "s3://${{ needs.assemble-lambda.outputs.s3_bucket }}"
+        run: aws s3 cp ${{ needs.assemble-lambda.outputs.ASSEMBLY_FILE }} "s3://${{ needs.assemble-lambda.outputs.S3_BUCKET }}"
