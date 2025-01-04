@@ -12,8 +12,7 @@ permissions:
   contents: write
 
 env:
-  TF_VAR_LAMBDA_JAR: "./target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar"
-  TF_VAR_LAMBDA_ZIP: "./DiscordEmailWebhook.zip"
+  TF_VAR_LAMBDA_BUCKET: "${{ vars.TF_VAR_RECIPIENT }}-${{ vars.TF_VAR_DISCORD_NAME }}-lambda-functions"
 
 jobs:
   build-lambda:
@@ -82,16 +81,24 @@ jobs:
         uses: sbt/setup-sbt@v1
 
       - name: Publish New Lambda Function
-        run: sbt assembly
-
-      - name: Zip Jar Program
-        run: zip ${{ env.TF_VAR_LAMBDA_ZIP }} ${{ env.TF_VAR_LAMBDA_JAR }}
-
-      - name: Upload Lambda as Artifact
-        uses: actions/upload-artifact@v4
+        run: |
+          echo "ASSEMBLY_PATH=${grep -e "Assembly jar up to date: " -e "Built: " ASSEMBLY_OUTPUT | awk -F' ' '{print $NF}'}" >> $GITHUB_OUTPUT
+          echo "FILE_PATH=${awk -F. '{print $NF}' ${{ steps.Publish_New_Lambda_Function.outputs.ASSEMBLY_PATH }}" >> $GITHUB_OUTPUT
+          echo ${{ steps.Publish_New_Lambda_Function.outputs.ASSEMBLY_PATH }}
+          echo ${{ steps.Publish_New_Lambda_Function.outputs.FILE_PATH }}
+          
+      - name: Setup AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: EmailWebhookHandlerLambda
-          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Create (if exists) S3 bucket
+        run: aws s3 mb "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}"
+
+      - name: Sync files to S3 bucket
+        run: aws s3 sync ${{ steps.Publish_New_Lambda_Function.outputs.ASSEMBLY_PATH }} "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}" --delete
 
       - name: Upload dependency graph
         uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
@@ -144,6 +151,7 @@ jobs:
         TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
         TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
         TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
+        TF_VAR_region: ${{ vars.AWS_REGION }}
       run: terraform plan
 
   publish-terraform-development:
@@ -166,12 +174,6 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Download Lambda as Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: EmailWebhookHandlerLambda
-          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
-
       - name: Terraform Apply
         env:
           TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
@@ -181,7 +183,8 @@ jobs:
           TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
-        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+          TF_VAR_region: ${{ vars.AWS_REGION }}
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch1')
         run: terraform apply -auto-approve
 
   plan-terraform-production:
@@ -213,6 +216,7 @@ jobs:
           TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
+          TF_VAR_region: ${{ vars.AWS_REGION }}
         run: terraform plan
 
   publish-terraform-production:
@@ -235,12 +239,6 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Download Lambda as Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: EmailWebhookHandlerLambda
-          path: ${{ env.TF_VAR_LAMBDA_ZIP }}
-
       - name: Terraform Apply
         env:
           TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
@@ -250,5 +248,6 @@ jobs:
           TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
+          TF_VAR_region: ${{ vars.AWS_REGION }}
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
