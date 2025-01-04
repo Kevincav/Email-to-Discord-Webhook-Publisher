@@ -17,7 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -47,7 +48,8 @@ jobs:
     env:
       TF_VAR_LAMBDA_BUCKET: "${{ vars.TF_VAR_RECIPIENT }}-${{ vars.TF_VAR_DISCORD_NAME }}-lambda-functions"
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4

@@ -13,3 +13,6 @@ jobs:
     uses: ./.github/workflows/pipeline.yml
     with:
       environment: development
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
