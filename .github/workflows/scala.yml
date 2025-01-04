@@ -133,7 +133,7 @@ jobs:
     name: 'Plan Terraform Development'
     runs-on: ubuntu-latest
     environment: development
-    needs: check-terraform
+    needs: [publish-lambda, check-terraform]
 
     defaults:
       run:
@@ -171,7 +171,7 @@ jobs:
     name: 'Publish Terraform Development'
     runs-on: ubuntu-latest
     environment: development
-    needs: [publish-lambda, plan-terraform-development]
+    needs: plan-terraform-development
 
     defaults:
       run:
@@ -205,7 +205,7 @@ jobs:
     name: 'Plan Terraform Production'
     runs-on: ubuntu-latest
     environment: production
-    needs: check-terraform
+    needs: [publish-lambda, check-terraform]
 
     defaults:
       run:
@@ -238,7 +238,7 @@ jobs:
     name: 'Publish Terraform Production'
     runs-on: ubuntu-latest
     environment: production
-    needs: [publish-lambda, plan-terraform-production, publish-terraform-development]
+    needs: [plan-terraform-production, publish-terraform-development]
 
     defaults:
       run:
