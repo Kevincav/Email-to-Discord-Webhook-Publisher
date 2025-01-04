@@ -6,6 +6,16 @@ on:
       environment:
         required: true
         type: string
+    secrets:
+      aws-access-key-id:
+        required: true
+        type: string
+      aws-secret-access-key:
+        required: true
+        type: string
+      aws-region:
+        required: true
+        type: string
 
 permissions:
   id-token: write
@@ -40,8 +50,8 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  publish-lambda:
-    name: 'Publish Lambda'
+  assemble-lambda:
+    name: 'Assemble Lambda and Upload as Artifact'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
     needs: test-lambda
@@ -83,7 +93,7 @@ jobs:
 
 
   publish-lambda-to-aws:
-    name: "Publish to AWS"
+    name: "Publish Lambda to AWS"
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
     needs: publish-lambda
@@ -93,10 +103,6 @@ jobs:
 
       - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Download Variable Artifact
         uses: actions/download-artifact@v4
