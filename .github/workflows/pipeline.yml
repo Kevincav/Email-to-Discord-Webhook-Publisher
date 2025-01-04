@@ -8,6 +8,10 @@ on:
   workflow_dispatch:
     branches: [ "main" ]
 
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
   lambda:
     name: Deploy Lambda

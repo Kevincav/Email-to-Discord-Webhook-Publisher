@@ -7,10 +7,6 @@ on:
         required: true
         type: string
 
-permissions:
-  id-token: write
-  contents: write
-
 env:
   TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
   TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
