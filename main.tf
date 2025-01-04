@@ -1,7 +1,7 @@
 // IAM Role
 
 resource "aws_iam_role" "Discord-Email-Webhook-IAM" {
-  name               = "${local.program_name}-iam-role"
+  name               = local.program_name
   assume_role_policy = data.aws_iam_policy_document.Assume-Role-Lambda-Policy.json
 }
 
