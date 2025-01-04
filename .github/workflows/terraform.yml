@@ -52,11 +52,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set Filename Global Variable
-      uses: actions/download-artifact@v4
-      with:
-        name: variables
-
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
@@ -90,7 +85,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: "${{ inputs.environment }}-variables"
-          path: "${{ inputs.environment }}.variables"
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'

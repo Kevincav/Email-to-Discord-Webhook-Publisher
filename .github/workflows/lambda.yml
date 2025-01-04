@@ -103,13 +103,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: "${{ inputs.environment }}-variables"
-          path: "${{ inputs.environment }}.variables"
 
       - name: Download Assembled Artifact
         uses: actions/download-artifact@v4
         with:
           name: "${{ inputs.environment }}-lambdaFunction"
-          path: "$(tail -1 ${{ inputs.environment }}.variables)"
 
       - name: Create (if exists) S3 bucket
         env:
