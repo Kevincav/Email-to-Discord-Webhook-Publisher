@@ -113,8 +113,8 @@ jobs:
         env:
           aws_bucket: "s3://$(head -1 ${{ inputs.environment }}.variables)"
         run: |
-          ls -al
-          ls -al "${{ inputs.environment }}.variables"
+          head -1 ${{ inputs.environment }}.variables
+          tail -1 ${{ inputs.environment }}.variables
           aws s3 mb ${{ env.aws_bucket }}
 
       - name: Copy Program to S3 Bucket
