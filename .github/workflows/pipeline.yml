@@ -1,4 +1,4 @@
-name: 'Run Pipeline on Environment'
+name: 'Run Pipeline'
 
 on:
   # push:
@@ -11,6 +11,8 @@ on:
 jobs:
   pipeline:
     name: Deploy Pipeline
+    runs-on: ubuntu-latest
+
     strategy:
       matrix:
         target: [ developer ]
