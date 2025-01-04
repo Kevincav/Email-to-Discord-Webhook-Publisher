@@ -90,11 +90,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: variables
-          path: variables.txt
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         env:
           TF_VAR_lambda_bucket: "$(head -1 variables.txt)"
-          TF_VAR_lambda_key: "$(tail -1 variables.txt)"
+          TF_VAR_lambda_key: "$(head -2 variables.txt | tail -1)"
         run: terraform apply -auto-approve
