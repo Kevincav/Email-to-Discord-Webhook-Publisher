@@ -114,7 +114,10 @@ jobs:
       - name: Create (if exists) S3 bucket
         env:
           aws_bucket: "s3://$(head -1 ${{ inputs.environment }}.variables)"
-        run: aws s3 mb ${{ env.aws_bucket }}
+        run: |
+          ls -al
+          ls -al "${{ inputs.environment }}.variables"
+          aws s3 mb ${{ env.aws_bucket }}
 
       - name: Copy Program to S3 Bucket
         env:
