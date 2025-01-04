@@ -13,9 +13,21 @@ permissions:
   contents: write
 
 jobs:
+  lambda:
+    name: Deploy Lambda
+
+    strategy:
+      matrix:
+        target: [ development ]
+
+    uses: ./.github/workflows/lambda.yml
+    with:
+      environment: ${{ matrix.target }}
+    secrets: inherit
+
   terraform:
     name: Deploy Terraform
-    # needs: lambda
+    needs: lambda
 
     strategy:
       matrix:
