@@ -1,15 +1,15 @@
 // IAM Role
 
-resource "aws_iam_role" "discord-email-webhook" {
+resource "aws_iam_role" "Discord-Email-Webhook-IAM" {
   name               = "${local.program_name}-iam-role"
-  assume_role_policy = data.aws_iam_policy_document.policy_document.json
+  assume_role_policy = data.aws_iam_policy_document.Assume-Role-Lambda-Policy.json
 }
 
 // Lambda Function
 
-resource "aws_lambda_function" "discord-email-webhook" {
+resource "aws_lambda_function" "Discord-Email-Webhook" {
   runtime       = var.runtime
-  role          = aws_iam_role.discord-email-webhook.arn
+  role          = aws_iam_role.Discord-Email-Webhook-IAM.arn
   handler       = "WebhookLambda::handleRequest"
   function_name = "${local.program_name}-Discord-Email-Webhook"
   architectures = [var.architecture]
@@ -24,12 +24,12 @@ resource "aws_lambda_function" "discord-email-webhook" {
 
 // S3 Buckets
 
-resource "aws_s3_bucket" "discord-email-webhook" {
+resource "aws_s3_bucket" "Discord-Email-Webhook-Bucket" {
   bucket = "${local.program_name}-emails"
 }
 
-resource "aws_s3_bucket_lifecycle_configuration" "discord-email-webhook" {
-  bucket = aws_s3_bucket.discord-email-webhook.bucket
+resource "aws_s3_bucket_lifecycle_configuration" "Discord-Email-Webhook-Bucket-Lifecycle-Policy" {
+  bucket = aws_s3_bucket.Discord-Email-Webhook-Bucket.bucket
   rule {
     id = "ExpireObjects"
     expiration {
@@ -39,10 +39,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "discord-email-webhook" {
   }
 }
 
-resource "aws_s3_bucket_notification" "discord-email-webhook" {
-  bucket = aws_s3_bucket.discord-email-webhook.id
+resource "aws_s3_bucket_notification" "Discord-Email-Webhook-Lambda-Trigger" {
+  bucket = aws_s3_bucket.Discord-Email-Webhook-Bucket.id
   lambda_function {
-    lambda_function_arn = aws_lambda_function.discord-email-webhook.arn
+    lambda_function_arn = aws_lambda_function.Discord-Email-Webhook.arn
     events = [
       "s3:ObjectCreated:Put",
       "s3:ObjectCreated:Post"
@@ -52,40 +52,36 @@ resource "aws_s3_bucket_notification" "discord-email-webhook" {
 
 // Setup Policies
 
-resource "aws_iam_role_policy" "discord-email-webhook" {
-  role   = aws_iam_role.discord-email-webhook.name
+resource "aws_iam_role_policy" "Discord-Email-Webhook-Bucket-Get-Object-Policy" {
+  role   = aws_iam_role.Discord-Email-Webhook-IAM.name
   name   = "${local.program_name}-s3-get-object-policy"
-  policy = data.aws_iam_policy_document.s3-get-object-policy.json
+  policy = data.aws_iam_policy_document.S3-Get-Set-Object-Policy.json
 }
 
-resource "aws_iam_role_policy" "cloud_log_group" {
-  role   = aws_iam_role.discord-email-webhook.name
+resource "aws_iam_role_policy" "Cloud-Log-Group-Policy" {
+  role   = aws_iam_role.Discord-Email-Webhook-IAM.name
   name   = "${local.program_name}-log-group-policy"
-  policy = data.aws_iam_policy_document.cloud_log_group.json
-}
-
-resource "aws_s3_bucket_policy" "discord-email-webhook" {
-  bucket = aws_s3_bucket.discord-email-webhook.bucket
-  policy = data.aws_iam_policy_document.s3_bucket_policy.json
+  policy = data.aws_iam_policy_document.Cloud-Log-Group-Policy.json
 }
 
 // SES
 
-resource "aws_ses_domain_identity" "discord-email-webhook" {
+resource "aws_ses_domain_identity" "Discord-Email-Webhook-Domain" {
   domain = var.domain_name
 }
 
-resource "aws_ses_receipt_rule_set" "discord-email-webhook" {
+resource "aws_ses_active_receipt_rule_set" "Discord-Email-Webhook-Active-Ruleset" {
   rule_set_name = "${local.program_name}-rule-set"
 }
 
-resource "aws_ses_receipt_rule" "discord-email-webhook" {
+resource "aws_ses_receipt_rule" "Discord-Email-Webhook-Ruleset-Rule" {
   name          = "${local.program_name}-rule"
-  rule_set_name = aws_ses_receipt_rule_set.discord-email-webhook.rule_set_name
+  rule_set_name = aws_ses_active_receipt_rule_set.Discord-Email-Webhook-Active-Ruleset.rule_set_name
   recipients    = [local.recipient_email]
   enabled       = true
   s3_action {
-    bucket_name = aws_s3_bucket.discord-email-webhook.id
-    position    = 1
+    bucket_name  = aws_s3_bucket.Discord-Email-Webhook-Bucket.id
+    iam_role_arn = aws_iam_role.Discord-Email-Webhook-IAM.arn
+    position     = 1
   }
 }
