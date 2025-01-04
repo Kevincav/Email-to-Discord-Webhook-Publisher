@@ -160,8 +160,8 @@ jobs:
         TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
         TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
         TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-        TF_VAR_lambda_bucket: head -1 variable.txt
-        TF_VAR_lambda_path: tail -1 variable.txt
+        TF_VAR_lambda_bucket: "$(head -1 variable.txt)"
+        TF_VAR_lambda_path: "$(tail -1 variable.txt)"
         TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
         TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
         TF_VAR_region: ${{ vars.AWS_REGION }}
@@ -193,8 +193,8 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_bucket: head -1 variable.txt
-          TF_VAR_lambda_path: tail -1 variable.txt
+          TF_VAR_lambda_bucket: "$(head -1 variable.txt)"
+          TF_VAR_lambda_path: "$(tail -1 variable.txt)"
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
           TF_VAR_region: ${{ vars.AWS_REGION }}
@@ -227,8 +227,8 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_bucket: head -1 variable.txt
-          TF_VAR_lambda_path: tail -1 variable.txt
+          TF_VAR_lambda_bucket: "$(head -1 variable.txt)"
+          TF_VAR_lambda_path: "$(tail -1 variable.txt)"
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
           TF_VAR_region: ${{ vars.AWS_REGION }}
@@ -260,8 +260,8 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_bucket: head -1 variable.txt
-          TF_VAR_lambda_path: tail -1 variable.txt
+          TF_VAR_lambda_bucket: "$(head -1 variable.txt)"
+          TF_VAR_lambda_path: "$(tail -1 variable.txt)"
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
           TF_VAR_region: ${{ vars.AWS_REGION }}
