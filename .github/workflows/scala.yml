@@ -99,6 +99,11 @@ jobs:
       - name: Create (if exists) S3 bucket
         run: aws s3 mb "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}"
 
+      - name: Create (if exists) S3 bucket 1
+        run: ls -al
+      - name: Create (if exists) S3 bucket 2
+        run: pwd
+
       - name: Sync files to S3 bucket
         run: aws s3 sync target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}" --delete
 
