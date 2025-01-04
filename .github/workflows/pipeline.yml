@@ -30,7 +30,7 @@ jobs:
 
     strategy:
       matrix:
-        target: [ developer ]
+        target: [ development ]
 
     uses: ./.github/workflows/terraform.yml
     with:
