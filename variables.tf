@@ -23,7 +23,7 @@ variable "lambda_bucket" {
   type        = string
 }
 
-variable "lambda_path" {
+variable "lambda_key" {
   description = "Path of the Lambda Function"
   type        = string
 }
