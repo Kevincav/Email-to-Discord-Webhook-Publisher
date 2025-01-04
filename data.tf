@@ -15,10 +15,16 @@ data "aws_iam_policy_document" "Assume-Role-Lambda-Policy" {
 data "aws_iam_policy_document" "S3-Get-Set-Object-Policy" {
   version = "2012-10-17"
   statement {
-    sid       = "S3GetObject"
+    sid       = "S3Permissions"
     effect    = "Allow"
     actions   = ["s3:GetObject", "s3:PutObject", "s3:PostObject"]
     resources = ["${aws_s3_bucket.Discord-Email-Webhook-Bucket.arn}/*"]
+  }
+  statement {
+    sid       = "SESPutObject"
+    effect    = "Allow"
+    actions   = ["s3:PutObject", "s3:PostObject"]
+    resources = [aws_s3_bucket.Discord-Email-Webhook-Bucket.arn]
   }
 }
 
