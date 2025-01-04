@@ -97,9 +97,6 @@ jobs:
       - name: Create (if exists) S3 bucket
         run: aws s3 mb "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}"
 
-      - name: Create (if exists) S3 bucket 2
-        run: realpath --relative-to=${PWD} ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }}
-
       - name: Copy Program to S3 Bucket
         run: aws s3 cp ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }} "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}"
 
