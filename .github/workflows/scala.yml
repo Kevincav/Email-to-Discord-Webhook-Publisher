@@ -85,15 +85,8 @@ jobs:
         run: |
           ASSEMBLY_OUTPUT=`sbt assembly`
           ASSEMBLY_PATH=$(echo $ASSEMBLY_OUTPUT | grep -e "Assembly jar up to date: " -e "Built: " | awk -F' ' '{print $NF}')
-          ASSEMBLY_FILE=$(basename $ASSEMBLY_PATH)
-          echo $ASSEMBLY_PATH
-          echo $ASSEMBLY_FILE
-          
           echo "ASSEMBLY_PATH=$ASSEMBLY_PATH" >> $GITHUB_OUTPUT
-          echo "ASSEMBLY_PATH=$ASSEMBLY_FILE" >> $GITHUB_OUTPUT
-          
-          echo ${{ steps.Publish_New_Lambda_Function.outputs.ASSEMBLY_PATH }}
-          echo ${{ steps.Publish_New_Lambda_Function.outputs.ASSEMBLY_FILE }}
+          echo "ASSEMBLY_FILE=$(basename $ASSEMBLY_PATH)" >> GITHUB_OUTPUT
           
       - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
