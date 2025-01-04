@@ -111,14 +111,11 @@ jobs:
 
       - name: Create (if exists) S3 bucket
         env:
-          aws_bucket: "s3://$(head -1 ${{ inputs.environment }}.variables)"
-        run: |
-          head -1 ${{ inputs.environment }}.variables
-          tail -1 ${{ inputs.environment }}.variables
-          aws s3 mb ${{ env.aws_bucket }}
+          aws_bucket: head -1 "${{ inputs.environment }}.variables"
+        run: aws s3 mb "s3://${{ env.aws_bucket }}"
 
       - name: Copy Program to S3 Bucket
         env:
-          aws_bucket: "$(head -1 ${{ inputs.environment }}.variables)"
-          assembly_path: "s3://$(tail -1 ${{ inputs.environment }}.variables)"
-        run: aws s3 cp ${{ env.assembly_path }} ${{ env.aws_bucket }}
+          aws_bucket: head -1 "${{ inputs.environment }}.variables"
+          assembly_path: tail -1 "${{ inputs.environment }}.variables"
+        run: aws s3 cp ${{ env.assembly_path }} "s3://${{ env.aws_bucket }}"
