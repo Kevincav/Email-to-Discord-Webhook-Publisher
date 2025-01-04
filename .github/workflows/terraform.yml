@@ -79,13 +79,19 @@ jobs:
       env:
         TF_VAR_lambda_bucket: ${{ needs.parse-artifacts.outputs.S3_BUCKET }}
         TF_VAR_lambda_key: ${{ needs.parse-artifacts.outputs.S3_KEY }}
-      run: terraform plan
+      run: terraform plan -out="${{ inputs.environment }}.out"
+
+    - name: Upload Terraform Plan Output Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: "${{ inputs.environment }} Output"
+        path: "${{ inputs.environment }}.out"
 
   publish-terraform:
     name: 'Publish Terraform'
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
-    needs: [parse-artifacts, plan-terraform]
+    needs: plan-terraform
 
     steps:
       - name: Checkout
@@ -97,9 +103,12 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Upload Terraform Plan Output Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: "${{ inputs.environment }} Output"
+          path: "${{ inputs.environment }}.out"
+
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        env:
-          TF_VAR_lambda_bucket: ${{ needs.parse-artifacts.outputs.S3_BUCKET }}
-          TF_VAR_lambda_key: ${{ needs.parse-artifacts.outputs.S3_KEY }}
-        run: terraform apply -auto-approve
+        run: terraform apply "${{ inputs.environment }}.out"
