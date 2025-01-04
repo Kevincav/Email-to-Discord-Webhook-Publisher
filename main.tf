@@ -55,16 +55,16 @@ resource "aws_s3_bucket_notification" "Discord-Email-Webhook-Lambda-Trigger" {
 // Setup Policies
 
 resource "aws_iam_role_policy" "Discord-Email-Webhook-Bucket-Get-Object-Policy" {
-  role   = aws_iam_role.Discord-Email-Webhook-IAM.name
-  name   = "${local.program_name}-s3-get-object-policy"
-  policy = data.aws_iam_policy_document.S3-Get-Set-Object-Policy.json
+  role       = aws_iam_role.Discord-Email-Webhook-IAM.name
+  name       = "${local.program_name}-s3-get-object-policy"
+  policy     = data.aws_iam_policy_document.S3-Get-Set-Object-Policy.json
   depends_on = [aws_s3_bucket.Discord-Email-Webhook-Bucket]
 }
 
 resource "aws_iam_role_policy" "Cloud-Log-Group-Policy" {
-  role   = aws_iam_role.Discord-Email-Webhook-IAM.name
-  name   = "${local.program_name}-log-group-policy"
-  policy = data.aws_iam_policy_document.Cloud-Log-Group-Policy.json
+  role       = aws_iam_role.Discord-Email-Webhook-IAM.name
+  name       = "${local.program_name}-log-group-policy"
+  policy     = data.aws_iam_policy_document.Cloud-Log-Group-Policy.json
   depends_on = [aws_lambda_function.Discord-Email-Webhook]
 }
 
