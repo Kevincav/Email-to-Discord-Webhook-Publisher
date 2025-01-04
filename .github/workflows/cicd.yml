@@ -1,0 +1,18 @@
+name: 'CI/CD Workflow'
+
+on:
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
+  workflow_dispatch:
+    branches: [ "main" ]
+
+jobs:
+  name: Development CI/CD Workflow
+  jobs:
+    development_pipeline:
+      name: Run Development Pipeline
+      uses: ./.github/workflows/pipeline.yml
+      with:
+        environment: "development"

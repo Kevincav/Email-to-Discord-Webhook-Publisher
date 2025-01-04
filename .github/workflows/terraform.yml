@@ -1,0 +1,102 @@
+name: 'Deploy Services with Terraform'
+
+on:
+  workflow_dispatch:
+    branches: [ "main" ]
+    inputs:
+      environment:
+        required: true
+        type: string
+      lambda_bucket:
+        required: True
+        type: string
+      lambda_key:
+        required: True
+        type: string
+
+permissions:
+  id-token: write
+  contents: write
+
+env:
+  TF_VAR_discord_name: ${{ vars.TF_VAR_DISCORD_NAME }}
+  TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
+  TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
+  TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
+  TF_VAR_lambda_bucket: lambda_bucket
+  TF_VAR_lambda_key: lambda_key
+  TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
+  TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
+  TF_VAR_region: ${{ vars.AWS_REGION }}
+
+jobs:
+  check-terraform:
+    name: 'Check Terraform'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Format
+        run: terraform fmt -check
+
+  plan-terraform:
+    name: 'Plan Terraform'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
+    needs: check-terraform
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set Filename Global Variable
+      uses: actions/download-artifact@v4
+      with:
+        name: variables
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan
+
+  publish-terraform:
+    name: 'Publish Terraform'
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment}}
+    needs: plan-terraform
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+        run: terraform apply -auto-approve

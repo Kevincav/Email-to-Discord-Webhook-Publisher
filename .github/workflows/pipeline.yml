@@ -1,0 +1,40 @@
+name: 'Run Pipeline on Environment'
+
+on:
+  workflow_dispatch:
+    branches: [ "main" ]
+    inputs:
+      environment:
+        required: true
+        type: string
+
+jobs:
+  pipeline:
+    name: Deploy Pipeline for Environment
+    environment: environment
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy Lambda on Deployment
+        uses: ./.github/workflows/lambda.yml
+        with:
+          environment: environment
+
+      - name: Set Filename Global Variable
+        uses: actions/download-artifact@v4
+        with:
+          name: variables
+          path: variables.txt
+
+      - name: Deploy Services with Terraform
+        uses: ./.github/workflows/terraform.yml
+        with:
+          environment: environment
+          bucket: "$(head -1 variables.txt)"
+          key: "$(tail -1 variables.txt)"
