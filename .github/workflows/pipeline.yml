@@ -15,7 +15,7 @@ permissions:
 jobs:
   terraform:
     name: Deploy Terraform
-    needs: lambda
+    # needs: lambda
 
     strategy:
       matrix:
