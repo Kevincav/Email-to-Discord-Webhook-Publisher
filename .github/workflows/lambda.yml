@@ -111,11 +111,11 @@ jobs:
           path: DiscordEmailWebhook.jar
 
       - name: Create (if exists) S3 bucket
-        with:
+        env:
           aws_bucket: "$(head -1 variable.txt)"
         run: aws s3 mb "s3://$aws_bucket"
 
       - name: Copy Program to S3 Bucket
-        with:
+        env:
           aws_bucket: "$(head -1 variable.txt)"
         run: aws s3 cp DiscordEmailWebhook.jar "s3://$aws_bucket"

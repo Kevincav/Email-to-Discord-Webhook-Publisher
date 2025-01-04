@@ -98,7 +98,7 @@ jobs:
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        with:
-          TF_VAR_lambda_bucket="$(head -1 variables.txt)"
-          TF_VAR_lambda_key="$(tail -1 variables.txt)"
+        env:
+          TF_VAR_lambda_bucket: "$(head -1 variables.txt)"
+          TF_VAR_lambda_key: "$(tail -1 variables.txt)"
         run: terraform apply -auto-approve
