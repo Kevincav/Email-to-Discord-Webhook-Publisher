@@ -40,7 +40,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "discord-email-webhook" {
 }
 
 resource "aws_s3_bucket_notification" "discord-email-webhook" {
-  bucket = aws_s3_bucket.discord-email-webhook.bucket
+  bucket = aws_s3_bucket.discord-email-webhook.id
   lambda_function {
     lambda_function_arn = aws_lambda_function.discord-email-webhook.arn
     events = [
@@ -80,12 +80,12 @@ resource "aws_ses_receipt_rule_set" "discord-email-webhook" {
 }
 
 resource "aws_ses_receipt_rule" "discord-email-webhook" {
-  rule_set_name = aws_ses_receipt_rule_set.discord-email-webhook.rule_set_name
   name          = "${local.program_name}-rule"
-  after         = "S3"
-  recipients    = [var.recipient]
+  rule_set_name = aws_ses_receipt_rule_set.discord-email-webhook.rule_set_name
+  recipients    = [local.recipient_email]
+  enabled       = true
   s3_action {
-    bucket_name = aws_s3_bucket.discord-email-webhook.bucket
+    bucket_name = aws_s3_bucket.discord-email-webhook.id
     position    = 1
   }
 }
