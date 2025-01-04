@@ -11,6 +11,7 @@ on:
 jobs:
   development_pipeline:
     name: Run Development Pipeline
+    runs-on: ubuntu-latest
     uses: ./.github/workflows/pipeline.yml
     with:
-      environment: "development"
+      environment: development

@@ -10,7 +10,8 @@ on:
 jobs:
   pipeline:
     name: Deploy Pipeline for Environment
-    environment: environment
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
 
     defaults:
       run:
