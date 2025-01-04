@@ -10,18 +10,24 @@ on:
 
 jobs:
   lambda:
+    name: Deploy Lambda
+
     strategy:
       matrix:
         target: [ developer ]
+
     uses: ./.github/workflows/lambda.yml
     with:
       environment: ${{ matrix.target }}
 
   terraform:
+    name: Deploy Terraform
     needs: lambda
+
     strategy:
       matrix:
         target: [ developer ]
+
     uses: ./.github/workflows/terraform.yml
     with:
       environment: ${{ matrix.target }}
