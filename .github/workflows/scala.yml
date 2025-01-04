@@ -98,8 +98,8 @@ jobs:
       - name: Create (if exists) S3 bucket
         run: aws s3 mb "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}"
 
-      - name: Sync files to S3 bucket
-        run: sudo aws s3 cp ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }} "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}" --delete
+      - name: Copy Program to S3 Bucket
+        run: aws s3 cp ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }} "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}"
 
       - name: Upload dependency graph
         uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
