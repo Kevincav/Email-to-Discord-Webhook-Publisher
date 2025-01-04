@@ -68,6 +68,7 @@ jobs:
           echo "ASSEMBLY_PATH=$ASSEMBLY_PATH" >> $GITHUB_OUTPUT
           echo ${{ env.TF_VAR_LAMBDA_BUCKET }} > variables.txt
           basename $ASSEMBLY_PATH >> variables.txt
+          echo $ASSEMBLY_PATH >> variables.txt
 
       - name: Upload Variable Artifact
         uses: actions/upload-artifact@v4
@@ -113,9 +114,10 @@ jobs:
       - name: Create (if exists) S3 bucket
         env:
           aws_bucket: "$(head -1 variable.txt)"
-        run: aws s3 mb "s3://$aws_bucket"
+        run: aws s3 mb "s3://${{ env.aws_bucket }}"
 
       - name: Copy Program to S3 Bucket
         env:
           aws_bucket: "$(head -1 variable.txt)"
-        run: aws s3 cp DiscordEmailWebhook.jar "s3://$aws_bucket"
+          assembly_path: "$(tail -1 variable.txt)"
+        run: aws s3 cp ${{ env.assembly_path }} "s3://${{ env.aws_bucket }}"
