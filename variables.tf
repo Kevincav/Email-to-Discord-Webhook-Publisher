@@ -18,6 +18,11 @@ variable "domain_name" {
   type        = string
 }
 
+variable "lambda_bucket" {
+  description = "S3 Bucket of the Lambda Function"
+  type        = string
+}
+
 variable "lambda_path" {
   description = "Path of the Lambda Function"
   type        = string

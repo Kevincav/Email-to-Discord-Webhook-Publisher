@@ -13,7 +13,7 @@ resource "aws_lambda_function" "discord-email-webhook" {
   handler       = "WebhookLambda::handleRequest"
   function_name = "${local.program_name}-Discord-Email-Webhook"
   architectures = [var.architecture]
-  s3_bucket     = "${local.program_name}-lambda-functions"
+  s3_bucket     = var.lambda_bucket
   s3_key        = var.lambda_path
   environment {
     variables = {

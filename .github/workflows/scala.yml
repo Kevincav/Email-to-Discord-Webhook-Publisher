@@ -12,9 +12,6 @@ permissions:
   id-token: write
   contents: write
 
-env:
-  TF_VAR_LAMBDA_BUCKET: "${{ vars.TF_VAR_RECIPIENT }}-${{ vars.TF_VAR_DISCORD_NAME }}-lambda-functions"
-
 jobs:
   build-lambda:
     name: 'Build Lambda'
@@ -68,6 +65,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     needs: [build-lambda, test-lambda]
+    env:
+      TF_VAR_LAMBDA_BUCKET: "${{ vars.TF_VAR_RECIPIENT }}-${{ vars.TF_VAR_DISCORD_NAME }}-lambda-functions"
     steps:
       - uses: actions/checkout@v4
 
@@ -86,7 +85,14 @@ jobs:
         run: |
           ASSEMBLY_PATH=$(sbt assembly | grep -e "Assembly jar up to date: " -e "Built: " | awk -F' ' '{print $NF}' | awk -F".jar" '{printf "%s.jar", $1}')
           echo "ASSEMBLY_PATH=$ASSEMBLY_PATH" >> $GITHUB_OUTPUT
-          echo "ASSEMBLY_FILE=$(basename $ASSEMBLY_PATH)" >> $GITHUB_OUTPUT
+          echo ${{ env.TF_VAR_LAMBDA_BUCKET }} > variable.txt
+          basename $ASSEMBLY_PATH > variable.txt
+
+      - name: Set Filename Global Variable
+        uses: actions/upload-artifact@v4
+        with:
+          name: variables
+          path: variable.txt
 
       - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
@@ -137,6 +143,11 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Set Filename Global Variable
+      uses: actions/download-artifact@v4
+      with:
+        name: variables
+
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
 
@@ -149,7 +160,8 @@ jobs:
         TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
         TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
         TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-        TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+        TF_VAR_lambda_bucket: head -1 variable.txt
+        TF_VAR_lambda_path: tail -1 variable.txt
         TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
         TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
         TF_VAR_region: ${{ vars.AWS_REGION }}
@@ -181,11 +193,12 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+          TF_VAR_lambda_bucket: head -1 variable.txt
+          TF_VAR_lambda_path: tail -1 variable.txt
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
           TF_VAR_region: ${{ vars.AWS_REGION }}
-        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch1')
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: terraform apply -auto-approve
 
   plan-terraform-production:
@@ -214,7 +227,8 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+          TF_VAR_lambda_bucket: head -1 variable.txt
+          TF_VAR_lambda_path: tail -1 variable.txt
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
           TF_VAR_region: ${{ vars.AWS_REGION }}
@@ -246,7 +260,8 @@ jobs:
           TF_VAR_domain_name: ${{ vars.TF_VAR_DOMAIN_NAME }}
           TF_VAR_recipient: ${{ vars.TF_VAR_RECIPIENT }}
           TF_VAR_webhook_address: ${{ vars.TF_VAR_WEBHOOK_ADDRESS }}
-          TF_VAR_lambda_path: ${{ env.TF_VAR_LAMBDA_ZIP }}
+          TF_VAR_lambda_bucket: head -1 variable.txt
+          TF_VAR_lambda_path: tail -1 variable.txt
           TF_VAR_aws_access_key_id: ${{ secrets.TF_VAR_AWS_ACCESS_KEY_ID }}
           TF_VAR_aws_secret_access_key: ${{ secrets.TF_AWS_VAR_SECRET_ACCESS_KEY }}
           TF_VAR_region: ${{ vars.AWS_REGION }}
