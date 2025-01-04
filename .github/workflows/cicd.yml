@@ -16,4 +16,3 @@ jobs:
     uses: ./.github/workflows/pipeline.yml
     with:
       environment: ${{ matrix.target }}
-    secrets: inherit
