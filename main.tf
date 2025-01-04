@@ -20,6 +20,7 @@ resource "aws_lambda_function" "Discord-Email-Webhook" {
       "WEBHOOK_ADDRESS" : var.webhook_address
     }
   }
+  depends_on = [aws_iam_role.Discord-Email-Webhook-IAM]
 }
 
 // S3 Buckets
@@ -48,6 +49,7 @@ resource "aws_s3_bucket_notification" "Discord-Email-Webhook-Lambda-Trigger" {
       "s3:ObjectCreated:Post"
     ]
   }
+  depends_on = [aws_lambda_function.Discord-Email-Webhook]
 }
 
 // Setup Policies
@@ -56,12 +58,14 @@ resource "aws_iam_role_policy" "Discord-Email-Webhook-Bucket-Get-Object-Policy" 
   role   = aws_iam_role.Discord-Email-Webhook-IAM.name
   name   = "${local.program_name}-s3-get-object-policy"
   policy = data.aws_iam_policy_document.S3-Get-Set-Object-Policy.json
+  depends_on = [aws_s3_bucket.Discord-Email-Webhook-Bucket]
 }
 
 resource "aws_iam_role_policy" "Cloud-Log-Group-Policy" {
   role   = aws_iam_role.Discord-Email-Webhook-IAM.name
   name   = "${local.program_name}-log-group-policy"
   policy = data.aws_iam_policy_document.Cloud-Log-Group-Policy.json
+  depends_on = [aws_lambda_function.Discord-Email-Webhook]
 }
 
 // SES
@@ -84,4 +88,5 @@ resource "aws_ses_receipt_rule" "Discord-Email-Webhook-Ruleset-Rule" {
     iam_role_arn = aws_iam_role.Discord-Email-Webhook-IAM.arn
     position     = 1
   }
+  depends_on = [aws_s3_bucket.Discord-Email-Webhook-Bucket, aws_iam_role.Discord-Email-Webhook-IAM]
 }
