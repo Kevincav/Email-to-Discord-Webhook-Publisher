@@ -87,7 +87,6 @@ jobs:
           ASSEMBLY_PATH=$(sbt assembly | grep -e "Assembly jar up to date: " -e "Built: " | awk -F' ' '{print $NF}')
           echo "What is the assembly path? $ASSEMBLY_PATH"
           echo "ASSEMBLY_PATH=$ASSEMBLY_PATH" >> $GITHUB_OUTPUT
-        # echo "ASSEMBLY_PATH=$(realpath --relative-to=${PWD} $ABSOLUTE_PATH)" >> $GITHUB_OUTPUT
           echo "ASSEMBLY_FILE=$(basename $ASSEMBLY_PATH)" >> $GITHUB_OUTPUT
           echo ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }}
 
