@@ -21,15 +21,15 @@ jobs:
     with:
       environment: ${{ matrix.target }}
 
-    terraform:
-      name: Deploy Terraform
-      runs-on: ubuntu-latest
-      needs: lambda
+  terraform:
+    name: Deploy Terraform
+    runs-on: ubuntu-latest
+    needs: lambda
 
-      strategy:
-        matrix:
-          target: [ developer ]
+    strategy:
+      matrix:
+        target: [ developer ]
 
-      uses: ./.github/workflows/terraform.yml
-      with:
-        environment: ${{ matrix.target }}
+    uses: ./.github/workflows/terraform.yml
+    with:
+      environment: ${{ matrix.target }}
