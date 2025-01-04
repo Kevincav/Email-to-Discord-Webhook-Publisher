@@ -75,7 +75,6 @@ jobs:
           echo "ASSEMBLY_FILE=$(basename $ASSEMBLY_PATH)" >> $GITHUB_OUTPUT
           echo ${{ env.TF_VAR_LAMBDA_BUCKET }} > "${{ inputs.environment }}.variables"
           basename $ASSEMBLY_PATH >> "${{ inputs.environment }}.variables"
-          echo $ASSEMBLY_PATH >> "${{ inputs.environment }}.variables"
 
       - name: Upload Variable Artifact
         uses: actions/upload-artifact@v4

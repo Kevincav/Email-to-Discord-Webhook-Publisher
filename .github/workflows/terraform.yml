@@ -42,7 +42,7 @@ jobs:
         id: parse-variables
         run: |
           echo "S3_BUCKET=$(head -1 ${{ inputs.environment }}.variables)" >> $GITHUB_OUTPUT
-          echo "S3_KEY=$(head -2 ${{ inputs.environment }}.variables | tail -1)" >> $GITHUB_OUTPUT
+          echo "S3_KEY=$(tail -1 ${{ inputs.environment }}.variables)" >> $GITHUB_OUTPUT
 
   check-terraform:
     name: 'Check Terraform'
