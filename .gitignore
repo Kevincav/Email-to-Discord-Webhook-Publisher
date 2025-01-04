@@ -75,3 +75,4 @@ project/**/metals.sbt
 .terraform/
 plan.out
 *.backup
+plan.json

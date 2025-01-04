@@ -48,6 +48,7 @@ resource "aws_s3_bucket_notification" "Discord-Email-Webhook-Lambda-Trigger" {
       "s3:ObjectCreated:Post"
     ]
   }
+  depends_on = [aws_lambda_permission.Discord-Email_Webhook-Lambda-Invoke-Policy]
 }
 
 // Setup Policies
@@ -78,13 +79,13 @@ resource "aws_ses_domain_identity" "Discord-Email-Webhook-Domain" {
   domain = var.domain_name
 }
 
-resource "aws_ses_active_receipt_rule_set" "Discord-Email-Webhook-Active-Ruleset" {
-  rule_set_name = "${local.program_name}-rule-set"
+resource "aws_ses_receipt_rule_set" "Discord-Email-Webhook-Default-Ruleset" {
+  rule_set_name = "${var.discord_name}-rule-set"
 }
 
 resource "aws_ses_receipt_rule" "Discord-Email-Webhook-Ruleset-Rule" {
   name          = "${local.program_name}-rule"
-  rule_set_name = aws_ses_active_receipt_rule_set.Discord-Email-Webhook-Active-Ruleset.rule_set_name
+  rule_set_name = aws_ses_receipt_rule_set.Discord-Email-Webhook-Default-Ruleset.rule_set_name
   recipients    = [local.recipient_email]
   enabled       = true
   s3_action {

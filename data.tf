@@ -6,7 +6,7 @@ data "aws_iam_policy_document" "Assume-Role-Lambda-Policy" {
     sid    = "LambdaAssumeRole"
     effect = "Allow"
     principals {
-      identifiers = ["lambda.amazonaws.com"]
+      identifiers = ["lambda.amazonaws.com", "ses.amazonaws.com"]
       type        = "Service"
     }
     actions = ["sts:AssumeRole"]
