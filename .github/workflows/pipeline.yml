@@ -9,36 +9,27 @@ on:
     branches: [ "main" ]
 
 jobs:
-  pipeline:
-    name: Deploy Pipeline
+  lambda:
+    name: Deploy Lambda
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
         target: [ developer ]
 
-    defaults:
-      run:
-        shell: bash
+    uses: ./.github/workflows/lambda.yml
+    with:
+      environment: ${{ matrix.target }}
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    terraform:
+      name: Deploy Terraform
+      runs-on: ubuntu-latest
+      needs: lambda
 
-      - name: Deploy Lambda
-        uses: ./.github/workflows/lambda
-        with:
-          environment: ${{ matrix.target }}
+      strategy:
+        matrix:
+          target: [ developer ]
 
-      - name: Set Filename Global Variable
-        uses: actions/download-artifact@v4
-        with:
-          name: variables
-          path: variables.txt
-
-      - name: Deploy Services with Terraform
-        uses: ./.github/workflows/terraform
-        with:
-          environment: ${{ matrix.target }}
-          bucket: "$(head -1 variables.txt)"
-          key: "$(tail -1 variables.txt)"
+      uses: ./.github/workflows/terraform.yml
+      with:
+        environment: ${{ matrix.target }}
