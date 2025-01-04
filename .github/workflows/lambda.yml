@@ -86,7 +86,7 @@ jobs:
     name: "Publish Lambda to AWS"
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment}}
-    needs: publish-lambda
+    needs: assemble-lambda
     steps:
       - name: Checkout
         uses: actions/checkout@v4
