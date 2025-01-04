@@ -9,7 +9,11 @@ on:
     branches: [ "main" ]
 
 jobs:
-  development_pipeline:
+  ReuseableMatrixJobForDeployment:
+    strategy:
+      matrix:
+        target: [ developer ]
     uses: ./.github/workflows/pipeline.yml
     with:
-      environment: development
+      environment: ${{ matrix.target }}
+    secrets: inherit
