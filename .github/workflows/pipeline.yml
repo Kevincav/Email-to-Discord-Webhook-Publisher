@@ -1,25 +1,19 @@
 name: 'Run Pipeline on Environment'
 
 on:
-  workflow_call:
-    inputs:
-      environment:
-        required: true
-        type: string
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
+  workflow_dispatch:
+    branches: [ "main" ]
 
 jobs:
-  Deploy Lambda on Deployment:
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
-    name: Deploy Lambda on Deployment
-    uses: ./.github/workflows/lambda.yml
-    with:
-      environment: environment
-    secrets: inherit
-
-  Deploy Services with Terraform:
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+  pipeline:
+    name: Deploy Pipeline
+    strategy:
+      matrix:
+        target: [ developer ]
 
     defaults:
       run:
@@ -28,6 +22,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Deploy Lambda
+        uses: ./.github/workflows/lambda.yml
+        with:
+          environment: ${{ matrix.target }}
 
       - name: Set Filename Global Variable
         uses: actions/download-artifact@v4
@@ -38,7 +37,6 @@ jobs:
       - name: Deploy Services with Terraform
         uses: ./.github/workflows/terraform.yml
         with:
-          environment: environment
+          environment: ${{ matrix.target }}
           bucket: "$(head -1 variables.txt)"
           key: "$(tail -1 variables.txt)"
-        secrets: inherit
