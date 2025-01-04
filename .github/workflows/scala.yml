@@ -87,7 +87,6 @@ jobs:
           ASSEMBLY_PATH=$(sbt assembly | grep -e "Assembly jar up to date: " -e "Built: " | awk -F' ' '{print $NF}')
           echo "ASSEMBLY_PATH=$ASSEMBLY_PATH" >> $GITHUB_OUTPUT
           echo "ASSEMBLY_FILE=$(basename $ASSEMBLY_PATH)" >> $GITHUB_OUTPUT
-          echo ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }}
 
       - name: Setup AWS CLI
         uses: aws-actions/configure-aws-credentials@v1
@@ -99,13 +98,8 @@ jobs:
       - name: Create (if exists) S3 bucket
         run: aws s3 mb "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}"
 
-      - name: Create (if exists) S3 bucket 1
-        run: ls -al
-      - name: Create (if exists) S3 bucket 2
-        run: pwd
-
       - name: Sync files to S3 bucket
-        run: aws s3 sync target/scala-3.6.2/DiscordEmailWebhook-assembly-v1.0.0.jar "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}" --delete
+        run: sudo aws s3 sync ${{ steps.assemble-lambda-function.outputs.ASSEMBLY_PATH }} "s3://${{ env.TF_VAR_LAMBDA_BUCKET }}" --delete
 
       - name: Upload dependency graph
         uses: scalacenter/sbt-dependency-submission@ab086b50c947c9774b70f39fc7f6e20ca2706c91
