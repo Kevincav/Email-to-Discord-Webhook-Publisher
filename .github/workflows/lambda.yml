@@ -1,8 +1,7 @@
 name: 'Publish Lambda to AWS'
 
 on:
-  workflow_dispatch:
-    branches: [ "main" ]
+  workflow_call:
     inputs:
       environment:
         required: true
@@ -66,7 +65,7 @@ jobs:
           ASSEMBLY_PATH=$(sbt assembly | grep -e "Assembly jar up to date: " -e "Built: " | awk -F' ' '{print $NF}' | awk -F".jar" '{printf "%s.jar", $1}')
           echo "ASSEMBLY_PATH=$ASSEMBLY_PATH" >> $GITHUB_OUTPUT
           echo ${{ env.TF_VAR_LAMBDA_BUCKET }} > variable.txt
-          basename $ASSEMBLY_PATH > variable.txt
+          basename $ASSEMBLY_PATH >> variable.txt
 
       - name: Set Filename Global Variable
         uses: actions/upload-artifact@v4

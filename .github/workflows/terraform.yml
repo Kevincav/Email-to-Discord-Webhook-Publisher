@@ -1,8 +1,7 @@
 name: 'Deploy Services with Terraform'
 
 on:
-  workflow_dispatch:
-    branches: [ "main" ]
+  workflow_call:
     inputs:
       environment:
         required: true
@@ -98,5 +97,5 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+        if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve
