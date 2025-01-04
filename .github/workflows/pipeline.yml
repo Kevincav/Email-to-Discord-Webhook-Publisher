@@ -23,6 +23,7 @@ jobs:
     uses: ./.github/workflows/lambda.yml
     with:
       environment: ${{ matrix.target }}
+    secrets: inherit
 
   terraform:
     name: Deploy Terraform
