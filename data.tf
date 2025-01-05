@@ -18,13 +18,13 @@ data "aws_iam_policy_document" "S3-Get-Set-Object-Policy" {
   statement {
     sid       = "S3Permissions"
     effect    = "Allow"
-    actions   = ["s3:GetObject", "s3:PutObject", "s3:PostObject"]
+    actions   = ["s3:GetObject", "s3:PutObject"]
     resources = ["${aws_s3_bucket.Discord-Email-Webhook-Bucket.arn}/*"]
   }
   statement {
     sid       = "SESPutObject"
     effect    = "Allow"
-    actions   = ["s3:PutObject", "s3:PostObject"]
+    actions   = ["s3:GetObject", "s3:PutObject"]
     resources = [aws_s3_bucket.Discord-Email-Webhook-Bucket.arn]
   }
 }
